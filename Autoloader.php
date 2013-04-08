@@ -5,6 +5,8 @@
  *
  * @package XenForo_Core
  */
+
+
 class WHM_Core_Autoloader extends XenForo_Autoloader
 {
 	protected $_eval = null;
