@@ -1,8 +1,6 @@
 <?php
 /**
  * User: Yoskaldyr
- * Date: 15.03.13
- * Time: 17:45
  */
 
 class WHM_Core_Listener extends XenForo_CodeEvent
