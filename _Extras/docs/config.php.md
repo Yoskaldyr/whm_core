@@ -1,5 +1,5 @@
 #Production mode
-All addons stored in /library/
+All addons stored in /library/ (default location)
 Add to config.php:
 
 ~~~php
