@@ -1,12 +1,14 @@
 <?php
+
 /**
- * Base XenForo autoloader class. This must be the first class loaded and setup as the
- * application/registry depends on it for loading classes.
+ * Class WHM_Core_Autoloader
+ * WHM Autoloader class
  *
- * @package XenForo_Core
+ * @package WHM_Core
+ * @author Yoskaldyr <yoskaldyr@gmail.com>
+ * @version 1000011 $Id$
+ * @since 1000011
  */
-
-
 class WHM_Core_Autoloader extends XenForo_Autoloader
 {
 	protected $_eval = null;

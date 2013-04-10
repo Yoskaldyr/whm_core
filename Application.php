@@ -1,4 +1,13 @@
 <?php
+
+/**
+ * WHM Core Application
+ *
+ * @package WHM_Core
+ * @author Yoskaldyr <yoskaldyr@gmail.com>
+ * @version 1000011 $Id$
+ * @since   1000011
+ */
 class WHM_Core_Application
 {
 	/**

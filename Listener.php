@@ -1,8 +1,14 @@
 <?php
-/**
- * User: Yoskaldyr
- */
 
+/**
+ * Fires code events and executes event listener callbacks
+ * based on XenForo_CodeEvent
+ *
+ * @package WHM_Core
+ * @author  Yoskaldyr <yoskaldyr@gmail.com>
+ * @version 1000011 $Id$
+ * @since   1000011
+ */
 class WHM_Core_Listener extends XenForo_CodeEvent
 {
 	/**
@@ -159,7 +165,7 @@ class WHM_Core_Listener extends XenForo_CodeEvent
 	 * Add class lists for later class extender.
 	 * Usually called from init_listeners event
 	 *
-	 * Example to extend
+	 * Example how extend
 	 * XenForo_DataWriter_Page
 	 *      with Some_Addon_DataWriter_Node, Some_Addon_DataWriter_Page and
 	 * XenForo_ViewPublic_Page_View
@@ -171,9 +177,9 @@ class WHM_Core_Listener extends XenForo_CodeEvent
 	 *                'Some_Addon_DataWriter_Node',
 	 *                'Some_Addon_DataWriter_Page'
 	 *            ),
-	 *            'XenForo_DataWriter_Page' => array(
+	 *            'XenForo_DataWriter_Forum' => array(
 	 *                'Some_Addon_DataWriter_Node',
-	 *                'Some_Addon_DataWriter_Page'
+	 *                'Some_Addon_DataWriter_Forum'
 	 *            )
 	 *      ),
 	 *      'view' => array(

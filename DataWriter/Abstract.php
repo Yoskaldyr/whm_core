@@ -1,5 +1,12 @@
 <?php
+
 /**
+ * WHM Base DataWriter class
+ *
+ * @package WHM_Core
+ * @author Yoskaldyr <yoskaldyr@gmail.com>
+ * @version 1000011 $Id$
+ * @since   1000011
  */
 abstract class WHM_Core_DataWriter_Abstract extends XFCP_WHM_Core_DataWriter_Abstract
 {
