@@ -1,10 +1,30 @@
 <?php
 class WHM_Core_Application
 {
+	/**
+	 * Constant key for storing
+	 * input filters definitions
+	 */
 	const INPUT_FIELDS = 'inputFields';
+
+	/**
+	 * Constant key for storing
+	 * datawriter fields definitions
+	 */
 	const DW_FIELDS = 'dwFields';
+
+	/**
+	 * Constant key for storing
+	 * datawriter data for bulk set on presave
+	 */
 	const DW_DATA = 'dwData';
+
+	/**
+	 * Constant key for storing
+	 * datawriter's extra data
+	 */
 	const DW_EXTRA = 'whmExtraInputData';
+
 	/**
 	 * Instance manager.
 	 *
@@ -12,8 +32,17 @@ class WHM_Core_Application
 	 */
 	private static $_instance;
 
+	/**
+	 * WHM_Core application registry store
+	 *
+	 * @var array
+	 */
 	private $_data = array();
 
+	/**
+	 * Global trigger for enable/disable WHM_Core
+	 * @var bool
+	 */
 	public $enabled = false;
 
 	/**
@@ -37,6 +66,11 @@ class WHM_Core_Application
 		return self::$_instance;
 	}
 
+	/**
+	 * Adds dynamic WHM_Core listeners and extenders to base XenForo Listeners
+	 * by firing init_listeners event
+	 * Called from WHM_Core_Autoloader
+	 * */
 	public static function initListeners()
 	{
 		$events = new WHM_Core_Listener();
@@ -70,6 +104,8 @@ class WHM_Core_Application
 	}
 
 	/**
+	 * Gets data from core application registry by key and type/class/classname
+	 *
 	 * @param string              $key    Key for Data
 	 * @param string|array|object $type   SubType (if array returned merged result)
 	 * @param boolean             $remove Remove key after get
@@ -121,6 +157,16 @@ class WHM_Core_Application
 		return array();
 	}
 
+	/**
+	 * Save data to core application registry by key and type/classname
+	 *
+	 * @param string $key    Key for Data
+	 * @param string $type   SubType or Class name
+	 * @param array  $data   Data to save
+	 *
+	 * @return array
+	 */
+
 	public function set($key, $type, array $data)
 	{
 		if ($this->enabled && $type && $key && $data)
@@ -135,6 +181,14 @@ class WHM_Core_Application
 			}
 		}
 	}
+
+	/**
+	 * Clears data in core application registry by key or type/class/classname
+	 *
+	 * @param string              $key    Key for Data
+	 * @param string|array|object $type   Single type (type/class/class name)
+	 *                                    or array of types to clear
+	 */
 
 	public function clear($key='', $type='')
 	{
@@ -176,6 +230,14 @@ class WHM_Core_Application
 		}
 	}
 
+	/**
+	 * Helper for unserialize selected fields in datawriter data
+	 *
+	 * @param array $data      Data
+	 * @param array $dwFields  Datawriter fields definitions
+	 *
+	 * @return array returns data with unserialized fields
+	 */
 	public function unserialize($data, $dwFields)
 	{
 		if ($data && $dwFields && is_array($data) && is_array($dwFields))
@@ -201,6 +263,13 @@ class WHM_Core_Application
 		return $data;
 	}
 
+	/**
+	 * Type name normalizer. Resolves type name by keys array or core registry
+	 * @param  string|array|object  $type Type to resolve
+	 * @param  mixed                $keys Key or array of keys to compare. If null registry used
+	 *
+	 * @return boolean|string       Returns type name as string if success
+	 */
 	public function resolveTypeName($type, $keys = null)
 	{
 		$this->lastResolved = false;

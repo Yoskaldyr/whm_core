@@ -44,24 +44,46 @@ class WHM_Core_Autoloader extends XenForo_Autoloader
 	 */
 	protected $_classDir = null;
 
+	/**
+	 * On autoload this class init_listeners event will be fired.
+	 *
+	 * @var string
+	 */
 	protected $_initListenersClass = 'XenForo_Options';
 
+	/**
+	 * Public setter for _initListenersClass
+	 *
+	 * @param string $class
+	 */
 	public function setInitClass($class = '')
 	{
 		$this->_initListenersClass = (string) $class;
 	}
 
+	/**
+	 * Public setter for _eval
+	 *
+	 * @param boolean $eval Fail-safe proxy loader with php 'eval'.
+	 */
 	public function setEval($eval = true)
 	{
 		$this->_eval = (bool) $eval;
 	}
 
+	/**
+	 * Public setter for _addonDir
+	 *
+	 * @param string $dir   New addon directory.
+	 *                      If empty addon's autoloader will be disabled.
+	 */
 	public function setAddonDir($dir = '')
 	{
 		$this->_addonDir = ($dir && ($dir = trim((string)$dir)) && @is_readable($dir) && @is_dir($dir)) ? $dir : null;
 	}
 
 	/**
+	 * Public setter for _addonMap
 	 * @param array $map Array of class prefix to addon prefix bindings to add
 	 *
 	 * */
@@ -335,6 +357,11 @@ class WHM_Core_Autoloader extends XenForo_Autoloader
 		}
 	}
 
+	/**
+	 * Creates directory for proxy classes
+	 *
+	 * @return boolean   Returns true on success
+	 */
 	protected function _createProxyDirectory()
 	{
 		if (!is_dir($path = $this->_getProxyPath()))
@@ -351,6 +378,14 @@ class WHM_Core_Autoloader extends XenForo_Autoloader
 		return true;
 	}
 
+	/**
+	 * Generates body of proxy class for base XenForo class
+	 *
+	 * @param string  $class    Original class name
+	 * @param string  $baseFile Path to original class file
+	 *
+	 * @return boolean|string     Returns body of class or false if error
+	 */
 	protected function _getProxyBody($class, $baseFile = '')
 	{
 		if (!$baseFile)
@@ -365,6 +400,15 @@ class WHM_Core_Autoloader extends XenForo_Autoloader
 		return false;
 	}
 
+	/**
+	 * Generates body of dynamic class for multi declarations of XFCP_ proxy classes
+	 *
+	 * @param string  $class    Original class name
+	 * @param integer $counter  Class declaration counter (used as postfix)
+	 * @param string  $baseFile Path to original class file
+	 *
+	 * @return boolean|string     Returns body of class or false if error
+	 */
 	protected function _getDynamicBody($class, $counter, $baseFile = '')
 	{
 		if (!$counter)
@@ -383,6 +427,16 @@ class WHM_Core_Autoloader extends XenForo_Autoloader
 		return false;
 	}
 
+	/**
+	 * Saves dynamic class in proxy directory for multi declarations of XFCP_ proxy classes
+	 *
+	 * @param string  $class     Original class name
+	 * @param integer $counter   Class declaration counter (used as postfix)
+	 * @param string  $baseFile  Path to original class file
+	 * @param string  $proxyFile Path to dynamic proxy class file
+	 *
+	 * @return boolean  Returns true on success
+	 */
 	protected function _saveDynamicClass($class, $counter, $baseFile = '', $proxyFile = '')
 	{
 		if ($this->_createProxyDirectory())
@@ -397,6 +451,14 @@ class WHM_Core_Autoloader extends XenForo_Autoloader
 		return false;
 	}
 
+	/**
+	 * Saves proxy class
+	 *
+	 * @param string  $proxyFile Path to proxy class file
+	 * @param string  $body      Body of class
+	 *
+	 * @return boolean  Returns true on success
+	 */
 	protected function _saveClass($proxyFile, $body)
 	{
 		return (

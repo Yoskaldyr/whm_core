@@ -1,8 +1,5 @@
 <?php
 /**
- * Data writer for Forums.
- *
- * @package XenForo_Node
  */
 abstract class WHM_Core_DataWriter_Abstract extends XFCP_WHM_Core_DataWriter_Abstract
 {
@@ -42,6 +39,14 @@ abstract class WHM_Core_DataWriter_Abstract extends XFCP_WHM_Core_DataWriter_Abs
 		parent::preSave();
 	}
 
+	/**
+	 * Serialized array validator
+	 * Unserialize checks with force data convert to serialized array
+	 * or null if check failed
+	 *
+	 * @param mixed $data Validated data
+	 * @return bool Always returns true
+	 */
 	protected function _validateSerializedArray(&$data)
 	{
 		if (!$data)
@@ -65,9 +70,18 @@ abstract class WHM_Core_DataWriter_Abstract extends XFCP_WHM_Core_DataWriter_Abs
 		return true;
 	}
 
-	public function getUnserialize($key, $onlyArray = false)
+	/**
+	 * Gets data related to this object regardless of where it is defined (new or old).
+	 *
+	 * @param string $field     Field name
+	 * @param bool   $onlyArray Returns only array if true (if data is not array returns empty array)
+	 * @param string $tableName Table name, if empty loops through tables until first match
+	 *
+	 * @return mixed Returns null if the specified field could not be found.
+	 */
+	public function getUnserialize($field, $onlyArray = false, $tableName = '')
 	{
-		$data = $this->get($key);
+		$data = $this->get($field, $tableName);
 		if (is_string($data))
 		{
 			$data = @unserialize($data);
