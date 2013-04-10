@@ -6,6 +6,8 @@ Add to config.php:
 WHM_Core_Autoloader::getProxy();
 ~~~
 
+-----
+
 #Development mode
 All addons stored in /addons/ (path configurable)
 
