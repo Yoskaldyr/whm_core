@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<addon addon_id="WHM_Core" title="[WHM] Core" version_string="0.0.1 alpha" version_id="0" url="" install_callback_class="" install_callback_method="" uninstall_callback_class="" uninstall_callback_method="">
+  <admin_navigation/>
+  <admin_permissions/>
+  <admin_style_properties/>
+  <admin_templates/>
+  <code_events>
+    <event event_id="init_application"><![CDATA[<p>Called when the WHM core application loads its default data.</p>
+
+<p>Callback signature:</p>
+<blockquote><code><em>WHM_Core_Application</em> $app</blockquote>
+
+<p>Arguments:</p>
+<ol>
+	<li><code><em>WHM_Core_Application</em> $app</code> - instance of WHM core application class</li>
+</ol>]]></event>
+    <event event_id="init_listeners"><![CDATA[<p>Called after loading all event listeners from DB or cache.</p>
+
+<p>Callback signature:</p>
+<blockquote><code><em>array</em> &$listeners</code></blockquote>
+
+<p>Arguments:</p>
+<ol>
+	<li><code><em>array</em> &$listeners</code> - a modifiable list of events and listeners loaded from registry. See below.</li>
+</ol>
+
+<p>Warning! This event fired before XenForo_Options is loaded!</p>]]></event>
+  </code_events>
+  <code_event_listeners>
+    <listener event_id="init_listeners" execute_order="1" callback_class="WHM_Core_Listener" callback_method="initListeners" active="1" description="Base Init Listeners (for enabling disabling addon)"/>
+  </code_event_listeners>
+  <cron/>
+  <email_templates/>
+  <optiongroups/>
+  <permissions>
+    <permission_groups/>
+    <permissions/>
+    <interface_groups/>
+  </permissions>
+  <phrases>
+    <phrase title="whm_child_nodes" version_id="0" version_string="0.0.1 alpha"><![CDATA[Child Nodes]]></phrase>
+    <phrase title="whm_update_child_nodes_on_save" version_id="0" version_string="0.0.1 alpha"><![CDATA[Update Child Nodes On Save]]></phrase>
+  </phrases>
+  <route_prefixes/>
+  <style_properties/>
+  <templates/>
+  <bb_code_media_sites/>
+  <template_modifications/>
+</addon>
