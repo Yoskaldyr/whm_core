@@ -28,6 +28,7 @@ WHM_Core - Ядро для разработки
 Для включения автолоадера ядра надо в начало `config.php` добавить
 
 ~~~php
+<?php
 WHM_Core_Autoloader::getProxy();
 ~~~
 
@@ -69,6 +70,7 @@ WHM_Core_Autoloader::getProxy();
 Пример: инициализируем автозагрузчик и предварительно ищем дополнения в папке `/addons/`:
 
 ~~~php
+<?php
 WHM_Core_Autoloader::getProxy()->setAddonDir('addons');
 ~~~
 Если автозагрузчик не находит класс по альтернативному пути, то он ищет его по первоначальному пути, т.е. в `/library/`.
@@ -139,6 +141,7 @@ WHM_Core_Autoloader::getProxy()->setAddonDir('addons');
 Типичный конфиг, который добвляется в `config.php`, когда надо чтобы дополнения лежали в `/addons/`, при условии что сам хак ядра тоже будет лежать в этой папке:
 
 ~~~php
+<?php
 //вручную инклудим автозагрузчик
 include('addons/whm_core/Autoloader.php');
 //инициализируем автозагрузчик и устанавливаем путь поиска дополнений
@@ -162,10 +165,8 @@ WHM_Core_Autoloader::getProxy()->addAddonMap(
 Для удобства описания всех обработчиков создано отдельное событие `init_listeners`, которое запускается из автозагрузчика, до всех остальных событий XenForo, даже раньше `init_dependencies`.
 
 Сигнатура события:
+`public static function initListeners(WHM_Core_Listener $events)`
 
-~~~php
-public static function initListeners(WHM_Core_Listener $events)
-~~~
 **Внимание!** Событие стартует до полной инициализации приложения, например, еще не загружены опции, поэтому лучше использовать в нем только методы `WHM_Core_Listener`.
 
 ### Добавление событий
@@ -173,6 +174,7 @@ public static function initListeners(WHM_Core_Listener $events)
 Пример добавления нескольких событий в конец очереди:
 
 ~~~php
+<?php
 $events->listeners['init_application'][] = array('Some_Class_Listener', 'initApplication');
 $events->listeners['template_hook'][] = array('Some_Class_Listener', 'templateHook');
 ~~~
@@ -192,6 +194,7 @@ $events->listeners['template_hook'][] = array('Some_Class_Listener', 'templateHo
  расширения `XenForo_ViewPublic_Page_View` с помощью `Some_Addon_ViewPublic_Page_View`:
 
 ~~~php
+<?php
 $events->addExtenders(
      'datawriter' => array(
           'XenForo_DataWriter_Page' => array(
@@ -230,12 +233,14 @@ $events->addExtenders(
 Пример добавления класса `Some_Class` для обработки событием `load_class_proxy_class`
 
 ~~~php
+<?php
 WHM_Core_Autoloader::getProxy()->addClass('Some_Class')
 ~~~
 
 При использовании метода `addExtenders` для события `load_class_proxy_class` классы автоматически добавятся в автолоадер, т.е. при вызове:
 
 ~~~php
+<?php
 $events->addExtenders(
 	array(
 	     'proxy_class' => array(
@@ -252,6 +257,7 @@ $events->addExtenders(
 **Внимание!** При расширении абстрактных классов вместо имени класса каким надо расширить указывается массив из этого имени и 2-го поля со значением `'abstract'`, например:
 
 ~~~php
+<?php
 $events->addExtenders(
 	array(
 	    'proxy_class' => array(
@@ -263,6 +269,9 @@ $events->addExtenders(
 );
 ~~~
 
+**Внимание!** Стоит помнить что при такой динамической подмене тело статических методов начинает принадлежать другому классу. Для примера, еслу будем расширять
+аддоном класс `XenForo_Link` (хороший пример, т.к. в нем одни статические методы), то тело всех методов (т.е. сами базовые родительские методы) будет находиться в `XFProxy_XenForo_Link`, а не внутри `XenForo_Link`. И как следствие обращаться к статическим методам оригинального класса из дочерних методов аддона, динамически отнаследованых в `load_class_proxy_class` надо будет только по полному пути, напрмиер `XFProxy_XenForo_Link::buildAdminLink` или `parent::buildAdminLink`, но не `XenForo_Link::buildAdminLink`, т.к. класс с именем `XenForo_Link` еще не загружен, и не `self::buildAdminLink`, который может давать неожиданные результаты, учитывая особенности видимости `self` для статических методов не инстанцированных классов.
+
 ### Мультинаследование или наследование одним классом аддона нескольких классов XenForo.
 Из-за невозможности повторного декларирования одного и того же класса, нельзя использовать 1 класс для расширения однотипных классов XenForo. Типичный пример  - датарайтеры узлов или обработчики ббкодов. Например, чтобы добавить функционал во все типы узлов приходится в аддоне создавать отдельный класс для каждого типа узла, даже если содержание в них будет полностью одинаковым.
 Но используя метод автоматического создания копии при повторном декларировании (метод аналогичный методу расширения базовых классов ксена описанному выше), можно добиться мультинаследованияпрокси классов без дублирования кода.
@@ -270,6 +279,7 @@ $events->addExtenders(
 Например, можно расширить 1 классом `Some_Addon_DataWriter_Node`, три класса: `XenForo_DataWriter_Node`, `XenForo_DataWriter_Page` и `XenForo_DataWriter_Forum` и это не вызовет ошибки даже если в коде все 3 класса будут одновременно использоваться.
 
 ~~~php
+<?php
 $events->addExtenders(
      'datawriter' => array(
           'XenForo_DataWriter_Node' => array(
