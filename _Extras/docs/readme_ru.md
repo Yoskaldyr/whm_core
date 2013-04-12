@@ -175,8 +175,10 @@ WHM_Core_Autoloader::getProxy()->addAddonMap(
 
 ~~~php
 <?php
-$events->listeners['init_application'][] = array('Some_Class_Listener', 'initApplication');
-$events->listeners['template_hook'][] = array('Some_Class_Listener', 'templateHook');
+public static function initListeners(WHM_Core_Listener $events) {
+	$events->listeners['init_application'][] = array('Some_Class_Listener', 'initApplication');
+	$events->listeners['template_hook'][] = array('Some_Class_Listener', 'templateHook');
+}
 ~~~
 Также обработчки можно добавлять используя методы:
 `prependListener($event, $callback)` - добавить обработчик в начало очереди события
@@ -195,21 +197,23 @@ $events->listeners['template_hook'][] = array('Some_Class_Listener', 'templateHo
 
 ~~~php
 <?php
-$events->addExtenders(
-     'datawriter' => array(
-          'XenForo_DataWriter_Page' => array(
-              'Some_Addon_DataWriter_Page'
-          ),
-          'XenForo_DataWriter_Forum' => array(
-              'Some_Addon_DataWriter_Forum'
-          )
-     ),
-     'view' => array(
-          'XenForo_ViewPublic_Page_View' => array(
-              'Some_Addon_ViewPublic_Page_View'
-          )
-     )
-);
+public static function initListeners(WHM_Core_Listener $events) {
+	$events->addExtenders(
+        'datawriter' => array(
+            'XenForo_DataWriter_Page' => array(
+                'Some_Addon_DataWriter_Page'
+            ),
+            'XenForo_DataWriter_Forum' => array(
+                'Some_Addon_DataWriter_Forum'
+            )
+        ),
+        'view' => array(
+            'XenForo_ViewPublic_Page_View' => array(
+                'Some_Addon_ViewPublic_Page_View'
+            )
+        )
+	);
+}
 ~~~
 **Внимание!** Обработчики событий, автоматически сгенерированные для событий `load_class_*` на основе описания `addExtenders` запускаются **в самую первую очередь** до обработчиков прописанных как админке XenForo, так и обработчиков прописанных через `listeners` методы.
 
@@ -241,15 +245,17 @@ WHM_Core_Autoloader::getProxy()->addClass('Some_Class')
 
 ~~~php
 <?php
-$events->addExtenders(
-	array(
-	     'proxy_class' => array(
-		     'Some_XenForo_Class' => array(
-			     'Some_AddOn_Class'
-		     )
-	     )
-	)
-);
+public static function initListeners(WHM_Core_Listener $events) {
+	$events->addExtenders(
+		array(
+	        'proxy_class' => array(
+		        'Some_XenForo_Class' => array(
+			        'Some_AddOn_Class'
+		        )
+	        )
+		)
+	);
+}
 ~~~
 вызывать `addClass('Some_XenForo_Class')` нет необходимости.
 Т.е. наследованиt через метод `addExtenders` - рекомендованное использование.
@@ -258,15 +264,17 @@ $events->addExtenders(
 
 ~~~php
 <?php
-$events->addExtenders(
-	array(
-	    'proxy_class' => array(
-			'XenForo_DataWriter' => array(
-				array('AddOn_DataWriter_Abstract', 'abstract')
+public static function initListeners(WHM_Core_Listener $events) {
+	$events->addExtenders(
+		array(
+	        'proxy_class' => array(
+				'XenForo_DataWriter' => array(
+					array('AddOn_DataWriter_Abstract', 'abstract')
+				)
 			)
 		)
-	)
-);
+	);
+}
 ~~~
 
 **Внимание!** Стоит помнить что при такой динамической подмене тело статических методов начинает принадлежать другому классу. Для примера, еслу будем расширять
@@ -280,18 +288,20 @@ $events->addExtenders(
 
 ~~~php
 <?php
-$events->addExtenders(
-     'datawriter' => array(
-          'XenForo_DataWriter_Node' => array(
-              'Some_Addon_DataWriter_Node'
-          ),
-          'XenForo_DataWriter_Page' => array(
-              'Some_Addon_DataWriter_Node'
-          ),
-          'XenForo_DataWriter_Forum' => array(
-              'Some_Addon_DataWriter_Node'
-          )
-     )
-);
+public static function initListeners(WHM_Core_Listener $events) {
+	$events->addExtenders(
+        'datawriter' => array(
+            'XenForo_DataWriter_Node' => array(
+                'Some_Addon_DataWriter_Node'
+            ),
+            'XenForo_DataWriter_Page' => array(
+                'Some_Addon_DataWriter_Node'
+            ),
+            'XenForo_DataWriter_Forum' => array(
+                'Some_Addon_DataWriter_Node'
+            )
+        )
+	);
+}
 ~~~
 **Внимание!** Мультинаследование работает только при описании наследования через `addExtenders`, во всех других случаях повторное декларирование будет вызывать стандартную ошибку PHP.
