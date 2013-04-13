@@ -16,9 +16,9 @@ WHM_Core - Ядро для разработки
 
 Все эти проблемы и неудобства позволяет решить ядро
 
-Содержание:
------------
+Содержание
+----------
 #### 1. [Автозагрузчик WHM_Core_Autoloader. Режим разработки и production.](/Yoskaldyr/whm_core/tree/master/_Extras/docs/autoloader_ru.md)
-#### 2. [Расширенная работа с событиями. Класс WHM_Core_Listener](/Yoskaldyr/whm_core/tree/master/_Extras/docs/listeners_ru.md)
+#### 2. [Расширенная работа с событиями. Класс WHM_Core_Listener.](/Yoskaldyr/whm_core/tree/master/_Extras/docs/listeners_ru.md)
 
 
