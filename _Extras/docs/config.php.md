@@ -1,4 +1,5 @@
-#Production mode
+Production mode
+===============
 All addons stored in /library/ (default location)
 Add to config.php:
 
@@ -8,7 +9,8 @@ WHM_Core_Autoloader::getProxy();
 
 -------------
 
-#Development mode
+Development mode
+================
 All addons stored in /addons/ (path configurable)
 
 ~~~php
