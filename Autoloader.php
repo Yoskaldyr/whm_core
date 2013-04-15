@@ -57,20 +57,24 @@ class WHM_Core_Autoloader extends XenForo_Autoloader
 	 * Public setter for _initListenersClass
 	 *
 	 * @param string $class
+	 * @return $this
 	 */
 	public function setInitClass($class = '')
 	{
 		$this->_initListenersClass = (string) $class;
+		return $this;
 	}
 
 	/**
 	 * Public setter for _eval
 	 *
 	 * @param boolean $eval Fail-safe proxy loader with php 'eval'.
+	 * @return $this
 	 */
 	public function setEval($eval = true)
 	{
 		$this->_eval = (bool) $eval;
+		return $this;
 	}
 
 	/**
@@ -78,16 +82,18 @@ class WHM_Core_Autoloader extends XenForo_Autoloader
 	 *
 	 * @param string $dir   New addon directory.
 	 *                      If empty addon's autoloader will be disabled.
+	 * @return $this
 	 */
 	public function setAddonDir($dir = '')
 	{
 		$this->_addonDir = ($dir && ($dir = trim((string)$dir)) && @is_readable($dir) && @is_dir($dir)) ? $dir : null;
+		return $this;
 	}
 
 	/**
 	 * Public setter for _addonMap
 	 * @param array $map Array of class prefix to addon prefix bindings to add
-	 *
+	 * @return $this
 	 * */
 	public function addAddonMap($map)
 	{
@@ -95,13 +101,14 @@ class WHM_Core_Autoloader extends XenForo_Autoloader
 		{
 			$this->_addonMap = $map + $this->_addonMap;
 		}
+		return $this;
 	}
 
 	/**
 	 * Add class name to proxy loaded classes
 	 *
 	 * @param string|array $class Class name for proxy loader
-	 *
+	 * @return $this
 	 * */
 	public function addClass($class = '')
 	{
@@ -120,6 +127,7 @@ class WHM_Core_Autoloader extends XenForo_Autoloader
 				$this->_proxyClasses[$class] = true;
 			}
 		}
+		return $this;
 	}
 
 	/**
