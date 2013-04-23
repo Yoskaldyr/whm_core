@@ -18,7 +18,7 @@ WHM_Core - Ядро для разработки
 
 Содержание
 ----------
-#### 1. [Автозагрузчик WHM_Core_Autoloader. Режим разработки и production.](docs/autoloader_ru.md)
-#### 2. [Класс WHM_Core_Listener. Расширенная работа с событиями.](docs/listeners_ru.md)
-#### 3. [Класс WHM_Core_Application. Реестр. Проброс данных в DataWriter.](docs/application_ru.md)
+#### 1. [Автозагрузчик WHM_Core_Autoloader. Режим разработки и production.](autoloader.md)
+#### 2. [Класс WHM_Core_Listener. Расширенная работа с событиями.](listeners.md)
+#### 3. [Класс WHM_Core_Application. Реестр. Проброс данных в DataWriter.](application.md)
 
