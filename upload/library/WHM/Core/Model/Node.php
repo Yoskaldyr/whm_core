@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * Node model
+ *
+ * @package WHM_Core
+ * @author  Yoskaldyr <yoskaldyr@gmail.com>
+ * @version 1000011 $Id$
+ * @since   1000011
+ */
 class WHM_Core_Model_Node extends XFCP_WHM_Core_Model_Node
 {
 	protected static $_fieldsCache = array();

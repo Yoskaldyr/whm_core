@@ -244,6 +244,12 @@ class WHM_Core_Listener extends XenForo_CodeEvent
 				     )
 			     ),
 			     'datawriter' => array(
+				     'XenForo_DataWriter_Discussion_Thread' => array(
+					     'WHM_Core_DataWriter_Thread'
+				     ),
+				     'XenForo_DataWriter_DiscussionMessage_Post' => array(
+					     'WHM_Core_DataWriter_Post'
+				     ),
 				     'XenForo_DataWriter_Node' => array(
 					     'WHM_Core_DataWriter_Node'
 				     ),
@@ -261,11 +267,28 @@ class WHM_Core_Listener extends XenForo_CodeEvent
 				     )
 			     ),
 			     'model' => array(
+				     'XenForo_Model_Thread' => array(
+					     'WHM_Core_Model_Thread'
+				     ),
+				     'XenForo_Model_Post' => array(
+					     'WHM_Core_Model_Post'
+				     ),
 				     'XenForo_Model_Node' => array(
 					     'WHM_Core_Model_Node'
 				     ),
 				     'XenForo_Model_Forum' => array(
 					     'WHM_Core_Model_Forum'
+				     )
+			     ),
+			     'controller' => array(
+				     'XenForo_ControllerPublic_Forum' => array(
+					     'WHM_Core_ControllerPublic_Forum'
+				     ),
+				     'XenForo_ControllerPublic_Thread' => array(
+					     'WHM_Core_ControllerPublic_Thread'
+				     ),
+				     'XenForo_ControllerPublic_Post' => array(
+					     'WHM_Core_ControllerPublic_Post'
 				     )
 			     )
 			)
