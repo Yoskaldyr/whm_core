@@ -238,6 +238,34 @@ class WHM_Core_Listener extends XenForo_CodeEvent
 			     'proxy_class' => array(
 				     'XenForo_DataWriter' => array(
 					     array('WHM_Core_DataWriter_Abstract', 'abstract')
+				     ),
+				     'XenForo_ControllerAdmin_NodeAbstract' => array(
+					     array('WHM_Core_ControllerAdmin_NodeAbstract', 'abstract')
+				     )
+			     ),
+			     'datawriter' => array(
+				     'XenForo_DataWriter_Node' => array(
+					     'WHM_Core_DataWriter_Node'
+				     ),
+				     'XenForo_DataWriter_Forum' => array(
+					     'WHM_Core_DataWriter_Node'
+				     ),
+				     'XenForo_DataWriter_Page' => array(
+					     'WHM_Core_DataWriter_Node'
+				     ),
+				     'XenForo_DataWriter_Category' => array(
+					     'WHM_Core_DataWriter_Node'
+				     ),
+				     'XenForo_DataWriter_LinkForum' => array(
+					     'WHM_Core_DataWriter_Node'
+				     )
+			     ),
+			     'model' => array(
+				     'XenForo_Model_Node' => array(
+					     'WHM_Core_Model_Node'
+				     ),
+				     'XenForo_Model_Forum' => array(
+					     'WHM_Core_Model_Forum'
 				     )
 			     )
 			)
