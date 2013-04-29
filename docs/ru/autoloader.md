@@ -132,7 +132,7 @@ WHM_Core_Autoloader::getProxy()->setAddonDir('addons');
 ~~~php
 <?php
 //вручную инклудим автозагрузчик
-include('addons/whm_core/Autoloader.php');
+include('addons/whm_core/upload/library/WHM/Core/Autoloader.php');
 //инициализируем автозагрузчик и устанавливаем путь поиска дополнений
 WHM_Core_Autoloader::getProxy()
 	->setAddonDir('addons')
