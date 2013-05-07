@@ -241,7 +241,10 @@ class WHM_Core_Listener extends XenForo_CodeEvent
 				     ),
 				     'XenForo_ControllerAdmin_NodeAbstract' => array(
 					     array('WHM_Core_ControllerAdmin_NodeAbstract', 'abstract')
-				     )
+				     ),
+				     'XenForo_Image_Abstract' => array(
+					     array('WHM_Core_Image_Abstract', 'abstract')
+				     ),
 			     ),
 			     'datawriter' => array(
 				     'XenForo_DataWriter_Discussion_Thread' => array(
@@ -267,6 +270,9 @@ class WHM_Core_Listener extends XenForo_CodeEvent
 				     )
 			     ),
 			     'model' => array(
+				     'XenForo_Model_Attachment' => array(
+					     'WHM_Core_Model_Attachment'
+				     ),
 				     'XenForo_Model_Thread' => array(
 					     'WHM_Core_Model_Thread'
 				     ),
