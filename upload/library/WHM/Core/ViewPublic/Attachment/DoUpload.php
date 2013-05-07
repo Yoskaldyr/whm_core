@@ -18,6 +18,7 @@ class WHM_Core_ViewPublic_Attachment_DoUpload extends XFCP_WHM_Core_ViewPublic_A
 		{
 			$attach['message'] = $this->_params['message'];
 		}
+
 		return XenForo_ViewRenderer_Json::jsonEncodeForOutput($attach);
 	}
 
