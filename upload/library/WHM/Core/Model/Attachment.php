@@ -12,7 +12,7 @@
 class WHM_Core_Model_Attachment extends XFCP_WHM_Core_Model_Attachment
 {
 	/**
-	 * @var string Handles content type for last attachment being uploaded. If empty, standard
+	 * @var string Contains content type for last attachment being uploaded. If empty, standard
 	 * thumbnail generation process will be used
 	 */
 	protected $_lastAttachmentType = '';
@@ -42,6 +42,23 @@ class WHM_Core_Model_Attachment extends XFCP_WHM_Core_Model_Attachment
 	public function getLastAttachmentHandler()
 	{
 		return $this->getAttachmentHandler($this->_lastAttachmentType);
+	}
+
+	/**
+	 * Returns name of the template, which will be used for JSON response in case of
+	 * ajax file upload
+	 */
+	public function getTemplateNameForAttachmentEditor()
+	{
+		$attachmentHandler = $this->getLastAttachmentHandler();
+		$templateName      = 'attachment_editor_attachment'; // default template name
+
+		if ($attachmentHandler && is_callable(array($attachmentHandler, 'getTemplateNameForAttachmentEditor')))
+		{
+			$templateName = $attachmentHandler->getTemplateNameForAttachmentEditor();
+		}
+
+		return $templateName;
 	}
 
 	/**

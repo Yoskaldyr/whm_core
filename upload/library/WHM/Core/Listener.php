@@ -295,6 +295,14 @@ class WHM_Core_Listener extends XenForo_CodeEvent
 				     ),
 				     'XenForo_ControllerPublic_Post' => array(
 					     'WHM_Core_ControllerPublic_Post'
+				     ),
+				     'XenForo_ControllerPublic_Attachment' => array(
+					     'WHM_Core_ControllerPublic_Attachment'
+				     ),
+			     ),
+			     'view' => array(
+				     'XenForo_ViewPublic_Attachment_DoUpload' => array(
+					     'WHM_Core_ViewPublic_Attachment_DoUpload'
 				     )
 			     )
 			)
