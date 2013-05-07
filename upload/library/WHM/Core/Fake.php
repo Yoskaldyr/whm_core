@@ -22,3 +22,7 @@ class XFCP_WHM_Core_DataWriter_Post extends XenForo_DataWriter_DiscussionMessage
 class XFCP_WHM_Core_ControllerPublic_Forum extends XenForo_ControllerPublic_Forum {}
 class XFCP_WHM_Core_ControllerPublic_Thread extends XenForo_ControllerPublic_Thread {}
 class XFCP_WHM_Core_ControllerPublic_Post extends XenForo_ControllerPublic_Post {}
+
+class XFCP_WHM_Core_Model_Attachment extends XenForo_Model_Attachment {}
+
+abstract class XFCP_WHM_Core_Image_Abstract extends XenForo_Image_Abstract {}
