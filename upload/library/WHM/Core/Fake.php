@@ -24,5 +24,6 @@ class XFCP_WHM_Core_ControllerPublic_Thread extends XenForo_ControllerPublic_Thr
 class XFCP_WHM_Core_ControllerPublic_Post extends XenForo_ControllerPublic_Post {}
 
 class XFCP_WHM_Core_Model_Attachment extends XenForo_Model_Attachment {}
-
 abstract class XFCP_WHM_Core_Image_Abstract extends XenForo_Image_Abstract {}
+class XFCP_WHM_Core_ControllerPublic_Attachment extends XenForo_ControllerPublic_Attachment {}
+class XFCP_WHM_Core_ViewPublic_Attachment_DoUpload extends XenForo_ViewPublic_Attachment_DoUpload {}
