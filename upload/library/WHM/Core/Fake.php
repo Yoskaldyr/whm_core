@@ -8,6 +8,8 @@
  * @version 1000011 $Id$
  * @since   1000011
  */
+
+abstract class XFCP_WHM_Core_Controller extends XenForo_Controller {}
 abstract class XFCP_WHM_Core_DataWriter_Abstract extends XenForo_DataWriter {}
 abstract class XFCP_WHM_Core_ControllerAdmin_NodeAbstract extends XenForo_ControllerAdmin_NodeAbstract {}
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<addon addon_id="WHM_Core" title="[WHM] Core" version_string="1.0.0 beta" version_id="1000030" url="" install_callback_class="" install_callback_method="" uninstall_callback_class="" uninstall_callback_method="">
+<addon addon_id="WHM_Core" title="[WHM] Core" version_string="1.0.0 beta 1" version_id="1000031" url="" install_callback_class="" install_callback_method="" uninstall_callback_class="" uninstall_callback_method="">
   <admin_navigation/>
   <admin_permissions/>
   <admin_style_properties/>
@@ -25,6 +25,25 @@
 </ol>
 
 <p>Warning! This event fired before XenForo_Options is loaded!</p>]]></event>
+    <event event_id="load_class_controller_helper"><![CDATA[<p>Called when instantiating a controller helper. This event can be used to extend the class that will be instantiated dynamically.</p>
+
+<p>Callback signature:</p>
+<blockquote><code>$class, <em>array</em> &$extend</code></blockquote>
+
+<p>Arguments:</p>
+<ol>
+	<li><code><em>string</em> $class</code> - the name of the class to be created</li>
+	<li><code><em>array</em> &$extend</code> - a modifiable list of classes that wish to extend the class. See below.</li>
+</ol>
+
+<p>To use this event properly, determine if the class is one you want to extend. If so, add a new entry to $extend with the name of the class that should extend it. This class MUST be defined as follows:</p>
+
+<pre>class My_Class_Name extends XFCP_My_Class_Name
+{
+	// functionality to extend/override
+}</pre>
+
+<p>This class must extend the non-existent XFCP_x class. This will be resolved at run time.</p>]]></event>
   </code_events>
   <code_event_listeners>
     <listener event_id="init_listeners" execute_order="1" callback_class="WHM_Core_Listener" callback_method="initListeners" active="1" description="Base Init Listeners (for enabling disabling addon)"/>

@@ -41,7 +41,7 @@ class WHM_Core_Listener extends XenForo_CodeEvent
 	 * @var array
 	 */
 	protected $_validTypes = array(
-		 'proxy_class', 'bb_code', 'controller', 'datawriter', 'importer',
+		 'proxy_class', 'bb_code', 'controller', 'controller_helper', 'datawriter', 'importer',
 		 'mail', 'model', 'route_prefix', 'search_data', 'view'
 	);
 
@@ -245,6 +245,9 @@ class WHM_Core_Listener extends XenForo_CodeEvent
 				     'XenForo_Image_Abstract' => array(
 					     array('WHM_Core_Image_Abstract', 'abstract')
 				     ),
+				     'XenForo_Controller' => array(
+					     array('WHM_Core_Controller', 'abstract')
+				     )
 			     ),
 			     'datawriter' => array(
 				     'XenForo_DataWriter_Discussion_Thread' => array(
@@ -352,6 +355,19 @@ class WHM_Core_Listener extends XenForo_CodeEvent
 	public static function loadClassController($class, array &$extend)
 	{
 		self::_mergeExtend('controller', $class, $extend);
+	}
+
+	/**
+	 * Event listener for load_class_controller_helper event
+	 * Called when instantiating a controller helper.
+	 * This event can be used to extend the class that will be instantiated dynamically.
+	 *
+	 * @param string $class  The name of the class to be created
+	 * @param array  $extend A modifiable list of classes that wish to extend the class
+	 */
+	public static function loadClassControllerHelper($class, array &$extend)
+	{
+		self::_mergeExtend('controller_helper', $class, $extend);
 	}
 
 	/**
