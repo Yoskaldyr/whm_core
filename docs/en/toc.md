@@ -1,8 +1,8 @@
 WHM_Core - Development core
-==============================
+===========================
 
 Common difficulties you'll face while doing addon development in XenForo
--------------------------------------------------------
+------------------------------------------------------------------------
 Developers often face these problemns during the development process in XenForo:
 
  1. It's not possible to extend basic classes in XenForo, especially static helpers.
@@ -16,12 +16,12 @@ Developers often face these problemns during the development process in XenForo:
 This core solves the issues stated above.
 
 Contents
-----------
+--------
 #### 1. [Autoloader WHM_Core_Autoloader. Development and production modes.](autoloader.md) (Available only in russian)
 #### 2. [WHM_Core_Listener class. Extended event handling.](listeners.md) (Available only in russian)
 #### 3. [WHM_Core_Application class. Register. Pushing data to DataWriter.](application.md) (Available only in russian)
 #### 4. [Simplified extension of most commonly used data types: nodes, threads, messages.](nodethreadpost.md) (Available only in russian)
 
 Additional
--------------
+----------
 #### [nginx settings example.](nginx.md)
