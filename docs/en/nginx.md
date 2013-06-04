@@ -1,9 +1,9 @@
-Пример настройки locations для nginx
-====================================
+Example nginx locations config
+==============================
 
-Пусть все аддоны нахолдятся в папке `/addons/`
+All addons stored in folder `/addons/`
 
-Тогда для поддержки всех вариантов соглашений в конфиг надо добавить:
+Location config for add-on's static files (js/css/images):
 
 ~~~
 location ~ ^/addons/ {
