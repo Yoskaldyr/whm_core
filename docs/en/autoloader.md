@@ -1,12 +1,12 @@
-Автозагрузчик WHM_Core_Autoloader
-=================================
-Общие положения
----------------
-Ядро для работы и реализации функционала использует собственный автозагрузчик классов и собственный аналог реестра очень похож на реестр XenForo_Application, но со своими особенностями.
+Autoloader WHM_Core_Autoloader
+==============================
+Description
+-----------
+The core for development and building functional uses own class autoloader and own analog of registry which is very similar to registry XenForo_Application but has special features.
 
-Для включения полного функционала ядра, кроме установки дополнения через админку, надо включить подмену стандартного автозагрузчика XenForo.
+To activate full functional of the core you need to proceed standart installation process and enable replacement of standard XenForo autoloader.
 
-Самый ранний вариант без правки оригинальных файлов - это добавление инициализации автозагрузчика в `config.php`, которое никак не повлияет на обновление форума или на установку каких либо сторонних хаков и инициализируется приложением достаточно рано чтобы была возможность перехватить практически любой класс после его загрузки.
+The earliest method without edition of original files is initialization of autoloader in `config.php`. This method doesn't affect on forum update or installing any other addons. The core is initialized is early enough to catch almost any class after its initialization.
 
 Обычный режим автозагрузчика. Production.
 -----------------------------------------
@@ -77,7 +77,7 @@ WHM_Core_Autoloader::getProxy()->setAddonDir('addons');
 
 Т.е. дополнения с длинным наименованиями можно хранить так:
 
-+ **Расположение по умолчанию:**
++ **Default file placement:**
 	+ xml файлов с аддоном и языками может вообще не быть в папках
 
 ~~~
@@ -88,7 +88,7 @@ WHM_Core_Autoloader::getProxy()->setAddonDir('addons');
 /styles/whm/someaddon/image.jpg
 ~~~
 
-+  **WHM-соглашение:**
++  **WHM-convetion:**
 	+ папка дополнения первые 2 части класса через подчеркивание в нижнем регистре
 	+ остальная часть пути класса как в library
 	+ все остальное лежит в _Extras
@@ -103,10 +103,9 @@ WHM_Core_Autoloader::getProxy()->setAddonDir('addons');
 /addons/whm_someaddon/_Extras/xml/language.xml
 ~~~
 
-+  **FullPath-соглашение:**
++  **FullPath-convention:**
 	+ папка дополнения первые 2 части класса через подчеркивание в нижнем регистре
 	+ все кроме xml лежит в upload по полному пути
-	+
 
 ~~~
 /addons/whm_someaddon/upload/library/WHM/SomeAddon/Model/Forum.php
@@ -117,7 +116,7 @@ WHM_Core_Autoloader::getProxy()->setAddonDir('addons');
 /addons/whm_someaddon/xml/language.xml
 ~~~
 
-Для дополнений с **коротким** стилем наименования используется только **FullPath-соглашение** только в качестве имени папки используется первая часть класса.
+Для дополнений с **коротким** стилем наименования используется только **FullPath-convention** только в качестве имени папки используется первая часть класса.
 
 Во всех соглашениях за счет нижнего регистра названия аддона и присутствия частей названия аддона в путях к статическим файлам, легко сделать редирект с `/(js|styles)/` на соответствующую папку аддона.
 
