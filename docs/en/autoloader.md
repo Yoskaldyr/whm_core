@@ -8,16 +8,16 @@ To activate full functional of the core you need to proceed standart installatio
 
 The earliest method without edition of original files is initialization of autoloader in `config.php`. This method doesn't affect on forum update or installing any other addons. The core is initialized is early enough to catch almost any class after its initialization.
 
-Обычный режим автозагрузчика. Production.
------------------------------------------
-Для включения автолоадера ядра надо в начало `config.php` добавить
+Standard mode of autoloader. Production.
+----------------------------------------
+To activate core's autoloader insert the following into beginning of `config.php`:
 
 ~~~php
 <?php
 WHM_Core_Autoloader::getProxy();
 ~~~
 
-При таком подходе `WHM_Core_Autoloader` грузится прямо перед `XenForo_FrontController` что позволяет при желании расширить практически любой класс после него:
+Using such method `WHM_Core_Autoloader` is loaded right before `XenForo_FrontController`. It allows to extend almost every class:
 
 ~~~
 1. index.php
@@ -31,7 +31,7 @@ WHM_Core_Autoloader::getProxy();
 9. library/XenForo/FrontController.php
 ~~~
 
-Хоть расширить теоретически можно любой класс, но практически удобное API, с динамическим наследованием, аналогичное стандартному API XenForo для обработчиков событий можно сделать только после стандартной загрузки `XenForo_CodeEvent`, и после прогрузки всех основных обработчиков событий из базы, т.е. после:
+To provide suitable API compatible with dinamic class resolution API proxy loader is initialized after `XenForo_CodeEvent`:
 
 ~~~
 9.  library/XenForo/FrontController.php
@@ -47,22 +47,22 @@ WHM_Core_Autoloader::getProxy();
 30. library/WHM/Core/Application.php
 ~~~
 
-Режим разработки. Отдельная папка для каждого аддона.
------------------------------------------------------
-При разработке удобно когда каждый аддон лежит в полностью своей папке, что практически не осуществимо в текущей структуре папок XenForo (php, js и стили - все в разных папках).
-Для этого у автолоадера есть режим поиска файлов в папке по альтернативному пути, причем внутри файлы хака могут располагаться исходя из нескольких вариантов соглашений (связано с тем что разработчики как только не называют свои классы при создании расширения).
+Development mode. Separate folder for each addon.
+-------------------------------------------------
+During development it is convenient when each addon has own folder. It is impossible with current file structure of XenForo (php, js and styles are in different directories).
+For this autoloader has mode of searching files in directory with alternative path. File structure of this directory need to satisfy one of the conventions (since there exists several addon structure standards).
 
-Метод автозагрузчика для указания папки поиска дополнений `setAddonDir`.
+Autoloader's method for setting directory of searching addons is `setAddonDir`.
 
-> Примечание. Все публичные сеттеры, `setAddonDir` в том числе, возвращают сам объект автозагрузчика, что позволяет все настройки произвести одной последовательной цепочкой вызовов.
+> Remark. All the public setters including `setAddonDir` return the autoloader object. It allows to set all the options by chain of calls.
 
-Пример: инициализируем автозагрузчик и предварительно ищем дополнения в папке `/addons/`:
+Example: we initialize autoloader and right after we search addons in directory `/addons/`:
 
 ~~~php
 <?php
 WHM_Core_Autoloader::getProxy()->setAddonDir('addons');
 ~~~
-Если автозагрузчик не находит класс по альтернативному пути, то он ищет его по первоначальному пути, т.е. в `/library/`.
+If autoloader fails to find class by alternative path it seaches it by the default path, i.e. `/library/`.
 
 ### Соглашения по структуре и именованию папок дополнений
 Разработчики при наименовании своих дополнений обычно используют 2 варианта наименования классов короткий и длинный:
