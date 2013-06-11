@@ -64,83 +64,81 @@ WHM_Core_Autoloader::getProxy()->setAddonDir('addons');
 ~~~
 If autoloader fails to find class by alternative path it seaches it by the default path, i.e. `/library/`.
 
-### Соглашения по структуре и именованию папок дополнений
-Разработчики при наименовании своих дополнений обычно используют 2 варианта наименования классов короткий и длинный:
+### Conventions about file structure.
+Developers usually follow one of two conventions, short and long:
 
-1. Короткий - `AddOnName_SubClass` (соответсвенно хранится в `/library/AddOnName/SubClass.php`)
-2. Длинный - `Author_AddOnName_SubClass` (соответсвенно хранится в `/library/Author/AddOnName/SubClass.php`)
+1. Short  - `AddOnName_SubClass` (located in `/library/AddOnName/SubClass.php`)
+2. Long  - `Author_AddOnName_SubClass` (located in`/library/Author/AddOnName/SubClass.php`)
 
-Соотвественно id дополнения на основе названия классов можно считать `addonname` и `author_addonname` (для удобства http редиректов будут в нижнем регистре).
-После чего простая последовательная проверка на наличие папок `author_addonname` и `addonname` позволяет точно сказать по какому соглашению проименованы классы в аддоне.
+Then, we may assume addon id is `addonname` и `author_addonname` (lowercase for convenient work with http redirects).
 
-Учитывая уже сложившуюся структуру SVN репозиториев для WHM, когда файлы классов лежат в 1 папке `/library/WHM/AddonName/` (т.е. длинное наименование), а все дополнительные файлы (js/xml/style) лежат в `/library/WHM/AddonName/_Extras/`, то автозагрузчик обрабатывает и этот вариант хранения готового дополнения.
-
-Т.е. дополнения с длинным наименованиями можно хранить так:
+I.e. addon with long naming `Author_AddOnName_SubClass` we may keep as following:
 
 + **Default file placement:**
-	+ xml файлов с аддоном и языками может вообще не быть в папках
+	+ xml (optionally)
 
 ~~~
-/library/WHM/SomeAddon/Model/Forum.php
-/library/WHM/SomeAddon/Model/Thread.php
-/library/WHM/SomeAddon/Listener.php
-/js/whm/someaddon/thread.js
-/styles/whm/someaddon/image.jpg
+/library/Author/SomeAddon/Model/Forum.php
+/library/Author/SomeAddon/Model/Thread.php
+/library/Author/SomeAddon/Listener.php
+/js/author/someaddon/thread.js
+/styles/author/someaddon/image.jpg
 ~~~
 
 +  **WHM-convetion:**
-	+ папка дополнения первые 2 части класса через подчеркивание в нижнем регистре
-	+ остальная часть пути класса как в library
-	+ все остальное лежит в _Extras
-	+ xml лежит в _Extras
+    + addon dir, 2 first parts of the class name using "_" in lowcase
+    + last part of class name as in library
+    + the rest is in _Extras
+    + xml is in _Extras
 
 ~~~
-/addons/whm_someaddon/Model/Forum.php
-/addons/whm_someaddon/Model/Thread.php
-/addons/whm_someaddon/Listener.php
-/addons/whm_someaddon/_Extras/js/whm/someaddon/thread.js
-/addons/whm_someaddon/_Extras/styles/whm/someaddon/image.jpg
-/addons/whm_someaddon/_Extras/xml/language.xml
+/addons/author_someaddon/Model/Forum.php
+/addons/author_someaddon/Model/Thread.php
+/addons/author_someaddon/Listener.php
+/addons/author_someaddon/_Extras/js/whm/someaddon/thread.js
+/addons/author_someaddon/_Extras/styles/whm/someaddon/image.jpg
+/addons/author_someaddon/_Extras/xml/language.xml
 ~~~
 
 +  **FullPath-convention:**
-	+ папка дополнения первые 2 части класса через подчеркивание в нижнем регистре
-	+ все кроме xml лежит в upload по полному пути
+	+ addon dir first two parts of the class using "_" as delimiter
+	+ all except xml is in upload folder by full path
 
 ~~~
-/addons/whm_someaddon/upload/library/WHM/SomeAddon/Model/Forum.php
-/addons/whm_someaddon/upload/library/WHM/SomeAddon/Model/Thread.php
-/addons/whm_someaddon/upload/library/WHM/SomeAddon/Listener.php
-/addons/whm_someaddon/upload/js/whm/someaddon/thread.js
-/addons/whm_someaddon/upload/styles/whm/someaddon/image.jpg
-/addons/whm_someaddon/xml/language.xml
+/addons/author_someaddon/upload/library/Author/SomeAddon/Model/Forum.php
+/addons/author_someaddon/upload/library/Author/SomeAddon/Model/Thread.php
+/addons/author_someaddon/upload/library/Author/SomeAddon/Listener.php
+/addons/author_someaddon/upload/js/author/someaddon/thread.js
+/addons/author_someaddon/upload/styles/author/someaddon/image.jpg
+/addons/author_someaddon/xml/language.xml
+/addons/author_someaddon/xml/addon.xml
 ~~~
 
-Для дополнений с **коротким** стилем наименования используется только **FullPath-convention** только в качестве имени папки используется первая часть класса.
+For addons with **short** style of naming `AddOnName_SubClass` it is used only **FullPath-convention** but first part of the class serves as dir name.
 
-Во всех соглашениях за счет нижнего регистра названия аддона и присутствия частей названия аддона в путях к статическим файлам, легко сделать редирект с `/(js|styles)/` на соответствующую папку аддона.
+Addon dir uses lowercase and pathes to static files include parts of addon name. Due to this in all the conventions it is easy to make redirect from `/(js|styles)/` to corresponding addon dir.
 
-### Привязка классов к определенному дополнению
-Если дополнение использует сторонние классы, с другим префиксом/неймспейсом (типичный пример дополнение `TMS` использует сторонние классы `Diff_*`), то может понадобиться принудительно указать в какой папке искать класс с заданным префиксом.
+### Associating classes to the addon
+If addon uses third-party classes with other prefix/namespase (like `TMS` uses classes `Diff_*`), then it may need to specify the class of such prefix.
 
-Для это используется метод автозагрузчика `addAddonMap`, пример использования ниже в примере конфига.
+For this purpose it is used autoloader method `addAddonMap`, example of using it in config:
 
-### Типичный конфиг
-Типичный конфиг, который добвляется в `config.php`, когда надо чтобы дополнения лежали в `/addons/`, при условии что сам хак ядра тоже будет лежать в этой папке:
+### Typical config
+Typical config which added to `config.php` when we need addons to be in `/addons/` folder (Core addon also need to be in this folder):
 
 ~~~php
 <?php
-//вручную инклудим автозагрузчик
+//manually include autoloader
 include('addons/whm_core/upload/library/WHM/Core/Autoloader.php');
-//инициализируем автозагрузчик и устанавливаем путь поиска дополнений
+//init autoloader and set path for searching addons
 WHM_Core_Autoloader::getProxy()
 	->setAddonDir('addons')
-		//т.к. сеттеры можно вызывать цепочкой последовательно, то далее
-		//указываем что надо искать классы Diff_* в папке аддона tms
+		//since setters may be called by chain
+		//then, point that Diff_* classes are in tms addon dir
 	->addAddonMap(
 		array(
-	        'Diff' => 'tms' //в качестве ключа самая первая/первые две части класса
-	                        //в качестве значения папка дополнения
+	        'Diff' => 'tms' //first/first two parts of the class as key
+	                        //dir as value
 		)
 );
 ~~~
