@@ -17,8 +17,8 @@ This core solves the issues stated above.
 
 Contents
 --------
-#### 1. [Autoloader WHM_Core_Autoloader. Development and production modes.](autoloader.md) (Available only in russian)
-#### 2. [WHM_Core_Listener class. Extended event handling.](listeners.md) (Available only in russian)
+#### 1. [Autoloader WHM_Core_Autoloader. Development and production modes.](autoloader.md)
+#### 2. [WHM_Core_Listener class. Extended event handling.](listeners.md)
 #### 3. [WHM_Core_Application class. Register. Pushing data to DataWriter.](application.md) (Available only in russian)
 #### 4. [Simplified extension of most commonly used data types: nodes, threads, messages.](nodethreadpost.md) (Available only in russian)
 
