@@ -33,13 +33,11 @@ class WHM_Core_ViewPublic_Attachment_DoUpload extends XFCP_WHM_Core_ViewPublic_A
 	 */
 	protected function _prepareAttachmentForJson(array $attachment)
 	{
-		$keys = array('attachment_id', 'attach_date', 'filename', 'thumbnailUrl', 'deleteUrl');
-
+		$keys = array('attachment_id', 'attach_date', 'filename', 'thumbnailUrl', 'deleteUrl', 'extension');
 		// just in case...
 		$templateName = empty($this->_params['attachmentEditorTemplateName']) ? 'attachment_editor_attachment' : $this->_params['attachmentEditorTemplateName'];
 
 		$template = $this->createTemplateObject($templateName, array('attachment' => $attachment));
-
 		$attachment = XenForo_Application::arrayFilterKeys($attachment, $keys);
 
 		$attachment['templateHtml'] = $template;
