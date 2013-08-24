@@ -11,10 +11,10 @@ Event callbacks signature:
 
 **Attention!** This events starts before the full initialization of the application, for example, before options. Then, it's recommended to use only `WHM_Core_Listener` methods.
 
-Добавление событий
-------------------
-Внутри события в объекте `$events` доступен оригинальный массив (данные об обработчиках из админки) обработчиков событий `$listeners`, где ключи названия событий, а значения массивы колбеков-обработчиков этих событий.
-Пример добавления нескольких событий в конец очереди:
+Adding of events
+----------------
+In the object `$events` there is an array (info about event listeners from admin panel) of event listeners  `$listeners`,where keys are events and values are arrays of callbacks (event listeners for event).
+Example of adding some events in the end queue:
 
 ~~~php
 <?php
@@ -23,21 +23,21 @@ public static function initListeners(WHM_Core_Listener $events) {
 	$events->listeners['template_hook'][] = array('Some_Class_Listener', 'templateHook');
 }
 ~~~
-Также обработчки можно добавлять используя методы:
-`prependListener($event, $callback)` - добавить обработчик в начало очереди события
-`appendListener($event, $callback)` - добавить обработчик в конец очереди события
-`addListeners(array $listeners, $prepend = false)` - добавить набор обработчиков для событий в начало или конец очереди, т.е. попросту объединение 2-х массивов обработчиков в нужном порядке.
+Also listeners can be added using methods:
+`prependListener($event, $callback)` - add listener to the beginning of queue for event
+`appendListener($event, $callback)` - add listener to the end of queue for event
+`addListeners(array $listeners, $prepend = false)` - add the set of listeners to beginning or to the end of queue, i.e. just merging of two arrays in appropriate order
 
-Управление наследованием
-------------------------
-В XenForo очень удобно реализовано расширение классов через динамическое наследование используя `load_class_*` события, но описание их приходится делать в нескольких местах, также приходится писать много однотипного кода (обработчики событий `load_class_*` практически всегда одинаковые только отличаются названием классов), хотя в 99% случаев надо просто расширить какой-то один класс другим.
-Для облегчения этого и чтобы все можно было прописать в 1 месте без необходимости делать обработчики для `load_class_*` событий добавлены специальные методы для описания наследования. Т.е. достаточно прописать в событии `init_listeners` цепочку наследования и обработчики событий для динамического наследования создадутся автоматом.
+Extending management
+--------------------
+Dynamic extending using `load_class_*` events is convenient in XenForo, but this events have to be described in more than one place. Also one need to write lots of repeating code (most of listeners are similar, only class name is the difference). But in 99% one just needs to extend some given class by another.
+To simplify it and to reduce description to one place (no need `load_class_*` listeners) there are added special extending methods. I.e. it's enough to add chain of extendings in event `init_listeners` and this will create listeners automatically.
 
-Для этого используется метод
+For this is is used method
 `public function addExtenders($extenders, $prepend = false)`
 
-Пример описания расширения `XenForo_DataWriter_Page` с помощью `Some_Addon_DataWriter_Node` и `Some_Addon_DataWriter_Page`, а также
- расширения `XenForo_ViewPublic_Page_View` с помощью `Some_Addon_ViewPublic_Page_View`:
+Example of extension of `XenForo_DataWriter_Page` by `Some_Addon_DataWriter_Node` and `Some_Addon_DataWriter_Page`, and also
+extension `XenForo_ViewPublic_Page_View` by `Some_Addon_ViewPublic_Page_View`:
 
 ~~~php
 <?php
@@ -59,20 +59,20 @@ public static function initListeners(WHM_Core_Listener $events) {
 	);
 }
 ~~~
-**Внимание!** Обработчики событий, автоматически сгенерированные для событий `load_class_*` на основе описания `addExtenders` запускаются **в самую первую очередь** до обработчиков прописанных как в админке XenForo, так и обработчиков прописанных через `listeners` методы.
+**Attention!** Code event listeners automatically generated for `load_class_*` events based on description `addExtenders` run **before the others**, i.e. before listeners described in ACP XenForo and before listeners described using `listeners` methods.
 
-Наследование базовых классов XenForo
+Inheritance of basic XenForo classes
 ------------------------------------
-Используя собственный автозагрузчик файлов можно решить проблему наследования нерасширяемых классов XenForo.
-Например, чтобы динамически расширить класс который вызывается по прямому имени - тот же, `XenForo_Link`, можно сделать физическую копию класса, но с измененным именем, например `XFProxy_XenForo_Link`, потом от него динамически отнаследовать цепочку как любой динамический класс в XenForo (задекларировать через `eval`), после чего опять же через `eval` задекларировать класс `XenForo_Link`.
+Using own autoloader for files we solve the problem of extension of non-extending classes of XenForo.
+For example, in order to extend the class called directly everywhere (`XenForo_Link`), it is possible to make a phisical copy of the class with changed name, for example, `XFProxy_XenForo_Link`, then dinamically extend a chain of classes like every dynamic class in XenForo (declared with 'eval'), after that again declare class `XenForo_Link` using eval.
 
-Т.е. вместо инклуда файла с `XenForo_Link` получаем цепочку:
+I.e. instead of including `XenForo_Link` we obtain a chain:
 
-1. Создание копии файла с подменой оригинального имени класса на класс с префиксом, т.е. `XFProxy_XenForo_Link`.
-2. Стандартное динамическое декларирование с наследованием цепочки `XFCP_*` классов  через `eval` с инклудами файлов аддонов.
-3. Декларирование оригинального имени класса `XenForo_Link` через `eval`, который расширяет последний класс в цепочке динамического наследования из предыдущего п.2.
+1. Create a copy of file with changed name by name with prefix, i.e. `XFProxy_XenForo_Link`.
+2. Standard dynamic declaration of chains of `XFCP_*` classes using `eval` with includes of addons' files.
+3. Declaration of original class `XenForo_Link` using `eval` which extends the last class in the chain above.
 
-Для удобной работы с таким прокси наследованием добавлено новое событие `load_class_proxy_class` по интерфейсу аналогичное остальным `load_class_*` событиям, только с некоторыми особенностями связанными со спецификой такого наследования.
+For convenient work with such a proxy extension there was added event `load_class_proxy_class` with interface similar to other `load_class_*` events, but with some differences due to specific of such an extension.
 
 ### Особенности реализации
 Копия создается при первой инициализации прокси класса с проверкой времени модификации файла, так что это не вызывает проблем в производительности на продакшене или проблем частого обновления файлов при разработке.
