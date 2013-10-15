@@ -74,19 +74,19 @@ I.e. instead of including `XenForo_Link` we obtain a chain:
 
 For convenient work with such a proxy extension there was added event `load_class_proxy_class` with interface similar to other `load_class_*` events, but with some differences due to specific of such an extension.
 
-### Особенности реализации
-Копия создается при первой инициализации прокси класса с проверкой времени модификации файла, так что это не вызывает проблем в производительности на продакшене или проблем частого обновления файлов при разработке.
+### Features of realisation
+Copy is created at first initialisation of proxy class. There is a modification time check for the file. So this will not cause problems with performance on production or problems with often update on development.
 
-Т.к. это динамическое наследование происходит внутри автозагрузчика классов, то проверять для каждого загружаемого класса возможность расширения его с помощью события `load_class_proxy_class` неэффективно в плане производительности, поэтому для этого сделан отдельный метод класса `WHM_Core_Autoloader` - `public function addClass($class = '')`. Только после добавления имени обрабатываемого класса в автозагрузчик для этого класса в момент автозагрузки запустится событие `load_class_proxy_class`.
+This dynamic extention is inside of autoloader, then checking for each loaded class the ability of its extention with `load_class_proxy_class` is bad for performance, therefore to do it there is a special method of the class `WHM_Core_Autoloader` - `public function addClass($class = '')`. After adding name of handled class in autoloader there will be called event `load_class_proxy_class` for that class.
 
-Пример добавления класса `Some_Class` для обработки событием `load_class_proxy_class`
+Example of adding  `Some_Class` for handling by event `load_class_proxy_class`
 
 ~~~php
 <?php
 WHM_Core_Autoloader::getProxy()->addClass('Some_Class')
 ~~~
 
-При использовании метода `addExtenders` для события `load_class_proxy_class` классы автоматически добавятся в автолоадер, т.е. при вызове:
+Using method `addExtenders` for event `load_class_proxy_class` classes are added automatically in autoloader, i.e. calling:
 
 ~~~php
 <?php
@@ -102,10 +102,10 @@ public static function initListeners(WHM_Core_Listener $events) {
 	);
 }
 ~~~
-вызывать `addClass('Some_XenForo_Class')` нет необходимости.
-Т.е. наследование через метод `addExtenders` - рекомендованное использование.
+it is unnecessarry to call `addClass('Some_XenForo_Class')`.
+I.e. extention using method `addExtenders` is recommended.
 
-**Внимание!** При расширении абстрактных классов вместо имени класса, которым надо расширить, указывается массив из этого имени и 2-го поля со значением `'abstract'`, например:
+**Atention!** Extending abstract classes you have to point array consisting of name of the class and second field 'abstract':
 
 ~~~php
 <?php
@@ -122,15 +122,15 @@ public static function initListeners(WHM_Core_Listener $events) {
 }
 ~~~
 
-**Внимание!** Стоит помнить что при такой динамической подмене тело статических методов начинает принадлежать другому классу. Для примера, еслу будем расширять
-аддоном класс `XenForo_Link` (хороший пример, т.к. в нем одни статические методы), то тело всех методов (т.е. сами базовые родительские методы) будет находиться в `XFProxy_XenForo_Link`, а не внутри `XenForo_Link`. И как следствие обращаться к статическим методам оригинального класса из дочерних методов аддона, динамически отнаследованых в `load_class_proxy_class` надо будет только по полному пути, напрмиер `XFProxy_XenForo_Link::buildAdminLink` или `parent::buildAdminLink`, но не `XenForo_Link::buildAdminLink`, т.к. класс с именем `XenForo_Link` еще не загружен, и не `self::buildAdminLink`, который может давать неожиданные результаты, учитывая особенности видимости `self` для статических методов не инстанцированных классов.
+**Atention!** Remember that using such dynamic replacement body of static methods belongs to another class.
+For example if we extend `XenForo_Link` (good example since it have only static methods), then body of all methods will be placed in `XFProxy_XenForo_Link`, not in `XenForo_Link`. And so you have to call such static methods by the full path, for example `XFProxy_XenForo_Link::buildAdminLink` or `parent::buildAdminLink`, but not `XenForo_Link::buildAdminLink`, since class with name `XenForo_Link` is not loaded yet and not `self::buildAdminLink` which can give unexpected results due to features of visibility of `self` for static methods of not instantiated classes.
 
-Мультинаследование или наследование одним классом аддона нескольких классов XenForo.
-------------------------------------------------------------------------------------
-Из-за невозможности повторного декларирования одного и того же класса, нельзя использовать 1 класс для расширения однотипных классов XenForo. Типичный пример  - датарайтеры узлов или обработчики ббкодов. Например, чтобы добавить функционал во все типы узлов приходится в аддоне создавать отдельный класс для каждого типа узла, даже если содержание в них будет полностью одинаковым.
-Но используя метод автоматического создания копии при повторном декларировании (метод аналогичный методу расширения базовых классов ксена описанному выше), можно добиться мультинаследованияпрокси классов без дублирования кода.
+Multiextention or extention of several classes of XenForo by one class of addon.
+--------------------------------------------------------------------------------
+Since it is imposible to redeclare of one class, it is impossible to use 1 class to extend similar classes of XenForo. Example: datawriters of nodes or bbcode handlers. For example, in order to add stuff to all node types one have to create one class for each node type even if they have same content.
+But using method of auto creation of copy at redeclaration(method similar to the one for extention of basic classes described before) one may get multiextention with proxy classes without copying of code.
 
-Например, можно расширить 1 классом `Some_Addon_DataWriter_Node`, три класса: `XenForo_DataWriter_Node`, `XenForo_DataWriter_Page` и `XenForo_DataWriter_Forum` и это не вызовет ошибки даже если в коде все 3 класса будут одновременно использоваться в одном вызове.
+For example, one may extend by one class `Some_Addon_DataWriter_Node`, three classes: `XenForo_DataWriter_Node`, `XenForo_DataWriter_Page` and `XenForo_DataWriter_Forum` and this will not cause errors even if all these theree classes will be used same timе.
 
 ~~~php
 <?php
@@ -150,4 +150,4 @@ public static function initListeners(WHM_Core_Listener $events) {
 	);
 }
 ~~~
-**Внимание!** Мультинаследование работает только при описании наследования через `addExtenders`, во всех других случаях повторное декларирование будет вызывать стандартную ошибку `PHP Fatal error: Cannot redeclare class`.
+**Atention!** Multiextention works only by declaration with `addExtenders`. In other declaration it will cause standard error `PHP Fatal error: Cannot redeclare class`.
