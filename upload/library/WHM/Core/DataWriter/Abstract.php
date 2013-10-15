@@ -98,40 +98,4 @@ abstract class WHM_Core_DataWriter_Abstract extends XFCP_WHM_Core_DataWriter_Abs
 			: $data;
 	}
 
-	/**
-	 * !!! Fixed Version !!! Allow null as data
-	 * Gets data related to this object regardless of where it is defined (new or old).
-	 *
-	 * @param string $field Field name
-	 * @param string $tableName Table name, if empty loops through tables until first match
-	 *
-	 * @return mixed Returns null if the specified field could not be found.
-	 */
-	public function get($field, $tableName = '')
-	{
-		$tables = $this->_getTableList($tableName);
-
-		foreach ($tables AS $tableName)
-		{
-			if (
-				isset($this->_newData[$tableName])
-				&& is_array($this->_newData[$tableName])
-				&& array_key_exists($field, $this->_newData[$tableName])
-			)
-			{
-				return $this->_newData[$tableName][$field];
-			}
-			else if (
-				isset($this->_existingData[$tableName])
-				&& is_array($this->_existingData[$tableName])
-				&& array_key_exists($field, $this->_existingData[$tableName])
-			)
-			{
-				return $this->_existingData[$tableName][$field];
-			}
-		}
-
-		return null;
-	}
-
 }

@@ -13,19 +13,19 @@ Event callbacks signature:
 
 Adding of events
 ----------------
-In the object `$events` there is an array (info about event listeners from admin panel) of event listeners  `$listeners`,where keys are events and values are arrays of callbacks (event listeners for event).
+In the object `$events` there is an array (info about event listeners from admin panel) of event listeners `$listeners` (array `[event_name][event_hint] => callback_array`). And `'_'` as default event hint (empty hint).
 Example of adding some events in the end queue:
 
 ~~~php
 <?php
 public static function initListeners(WHM_Core_Listener $events) {
-	$events->listeners['init_application'][] = array('Some_Class_Listener', 'initApplication');
-	$events->listeners['template_hook'][] = array('Some_Class_Listener', 'templateHook');
+	$events->listeners['init_application']['_'][] = array('Some_Class_Listener', 'initApplication');
+	$events->listeners['template_hook']['_'][] = array('Some_Class_Listener', 'templateHook');
 }
 ~~~
 Also listeners can be added using methods:
-`prependListener($event, $callback)` - add listener to the beginning of queue for event
-`appendListener($event, $callback)` - add listener to the end of queue for event
+`prependListener($event, $callback, $hint)` - add listener to the beginning of queue for event
+`appendListener($event, $callback, $hint)` - add listener to the end of queue for event
 `addListeners(array $listeners, $prepend = false)` - add the set of listeners to beginning or to the end of queue, i.e. just merging of two arrays in appropriate order
 
 Extending management

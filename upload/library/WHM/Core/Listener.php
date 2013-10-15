@@ -41,7 +41,7 @@ class WHM_Core_Listener extends XenForo_CodeEvent
 	 * @var array
 	 */
 	protected $_validTypes = array(
-		 'proxy_class', 'bb_code', 'controller', 'controller_helper', 'datawriter', 'importer',
+		 'proxy_class', 'bb_code', 'controller', 'datawriter', 'importer',
 		 'mail', 'model', 'route_prefix', 'search_data', 'view'
 	);
 
@@ -79,7 +79,7 @@ class WHM_Core_Listener extends XenForo_CodeEvent
 				if (!empty(self::$_extend[$type]))
 				{
 					$listenerMethod = str_replace(' ', '', ucwords(str_replace('_', ' ', $type)));
-					$listeners['load_class_'.$type] = array(
+					$listeners['load_class_'.$type]['_'] = array(
 						array('WHM_Core_Listener', 'loadClass'. $listenerMethod)
 					);
 					if ($type == 'proxy_class')
@@ -106,18 +106,19 @@ class WHM_Core_Listener extends XenForo_CodeEvent
 	 *
 	 * @param string   $event    Event to listen to
 	 * @param callback $callback Function/method to call.
+	 * @param string $hint If specified (value other than an _), will only be run when the specified hint is provided
 	 */
-	public function prependListener($event, $callback)
+	public function prependListener($event, $callback, $hint = '_')
 	{
 		if (self::$enabled)
 		{
-			if (!isset($this->listeners[$event]))
+			if (!isset($this->listeners[$event][$hint]))
 			{
-				$this->listeners[$event][] = $callback;
+				$this->listeners[$event][$hint][] = $callback;
 			}
 			else
 			{
-				array_unshift($this->listeners[$event], $callback);
+				array_unshift($this->listeners[$event][$hint], $callback);
 			}
 		}
 	}
@@ -129,12 +130,13 @@ class WHM_Core_Listener extends XenForo_CodeEvent
 	 *
 	 * @param string   $event    Event to listen to
 	 * @param callback $callback Function/method to call.
+	 * @param string $hint If specified (value other than an _), will only be run when the specified hint is provided
 	 */
-	public function appendListener($event, $callback)
+	public function appendListener($event, $callback, $hint = '_')
 	{
 		if (self::$enabled)
 		{
-			$this->listeners[$event][] = $callback;
+			$this->listeners[$event][$hint][] = $callback;
 		}
 	}
 
@@ -241,12 +243,6 @@ class WHM_Core_Listener extends XenForo_CodeEvent
 				     ),
 				     'XenForo_ControllerAdmin_NodeAbstract' => array(
 					     array('WHM_Core_ControllerAdmin_NodeAbstract', 'abstract')
-				     ),
-				     'XenForo_Image_Abstract' => array(
-					     array('WHM_Core_Image_Abstract', 'abstract')
-				     ),
-				     'XenForo_Controller' => array(
-					     array('WHM_Core_Controller', 'abstract')
 				     )
 			     ),
 			     'datawriter' => array(
@@ -273,9 +269,6 @@ class WHM_Core_Listener extends XenForo_CodeEvent
 				     )
 			     ),
 			     'model' => array(
-				     'XenForo_Model_Attachment' => array(
-					     'WHM_Core_Model_Attachment'
-				     ),
 				     'XenForo_Model_Thread' => array(
 					     'WHM_Core_Model_Thread'
 				     ),
@@ -298,14 +291,6 @@ class WHM_Core_Listener extends XenForo_CodeEvent
 				     ),
 				     'XenForo_ControllerPublic_Post' => array(
 					     'WHM_Core_ControllerPublic_Post'
-				     ),
-				     'XenForo_ControllerPublic_Attachment' => array(
-					     'WHM_Core_ControllerPublic_Attachment'
-				     ),
-			     ),
-			     'view' => array(
-				     'XenForo_ViewPublic_Attachment_DoUpload' => array(
-					     'WHM_Core_ViewPublic_Attachment_DoUpload'
 				     )
 			     )
 			)
@@ -355,19 +340,6 @@ class WHM_Core_Listener extends XenForo_CodeEvent
 	public static function loadClassController($class, array &$extend)
 	{
 		self::_mergeExtend('controller', $class, $extend);
-	}
-
-	/**
-	 * Event listener for load_class_controller_helper event
-	 * Called when instantiating a controller helper.
-	 * This event can be used to extend the class that will be instantiated dynamically.
-	 *
-	 * @param string $class  The name of the class to be created
-	 * @param array  $extend A modifiable list of classes that wish to extend the class
-	 */
-	public static function loadClassControllerHelper($class, array &$extend)
-	{
-		self::_mergeExtend('controller_helper', $class, $extend);
 	}
 
 	/**

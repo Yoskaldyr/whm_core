@@ -13,19 +13,19 @@
 
 Добавление событий
 ------------------
-Внутри события в объекте `$events` доступен оригинальный массив (данные об обработчиках из админки) обработчиков событий `$listeners`, где ключи названия событий, а значения массивы колбеков-обработчиков этих событий.
+Внутри события в объекте `$events` доступен оригинальный массив (данные об обработчиках из админки) обработчиков событий `$listeners`, со структурой `[Имя_события][Подсказка_события] => массив_обработчика`. `'_'` в качестве подсказки события по умолчанию (пустая подсказка).
 Пример добавления нескольких событий в конец очереди:
 
 ~~~php
 <?php
 public static function initListeners(WHM_Core_Listener $events) {
-	$events->listeners['init_application'][] = array('Some_Class_Listener', 'initApplication');
-	$events->listeners['template_hook'][] = array('Some_Class_Listener', 'templateHook');
+	$events->listeners['init_application']['_'][] = array('Some_Class_Listener', 'initApplication');
+	$events->listeners['template_hook']['_'][] = array('Some_Class_Listener', 'templateHook');
 }
 ~~~
 Также обработчки можно добавлять используя методы:
-`prependListener($event, $callback)` - добавить обработчик в начало очереди события
-`appendListener($event, $callback)` - добавить обработчик в конец очереди события
+`prependListener($event, $callback, $hint)` - добавить обработчик в начало очереди события
+`appendListener($event, $callback, $hint)` - добавить обработчик в конец очереди события
 `addListeners(array $listeners, $prepend = false)` - добавить набор обработчиков для событий в начало или конец очереди, т.е. попросту объединение 2-х массивов обработчиков в нужном порядке.
 
 Управление наследованием
