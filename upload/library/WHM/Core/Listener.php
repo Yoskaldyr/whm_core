@@ -224,6 +224,59 @@ class WHM_Core_Listener extends XenForo_CodeEvent
 	}
 
 	/**
+	 * Add single class to class list for later class extender.
+	 * Usually called from init_listeners event
+	 *
+	 * Example how extend
+	 * XenForo_DataWriter_Page with Some_Addon_DataWriter_Node
+	 *
+	 * $this->addExtender('XenForo_DataWriter_Page', 'Some_Addon_DataWriter_Node', 'datawriter');
+	 *
+	 * @param string $class   Class name to extend
+	 * @param string $extend  Extend class name
+	 * @param string $type    Class type
+	 * @param bool   $prepend Add to start of extenders's list if true
+	 *
+	 */
+	public function addExtender($class, $extend, $type = '', $prepend = false)
+	{
+		self::addExtenderStatic($class, $extend, $type, $prepend);
+	}
+
+	/**
+	 * Static version of addExtender method
+	 * @see WHM_Core_Listener::addExtender
+	 *
+	 * @param string $class   Class name to extend
+	 * @param string $extend  Extend class name
+	 * @param string $type    Class type
+	 * @param bool   $prepend Add to start of extenders's list if true
+	 *
+	 */
+	public static function addExtenderStatic($class, $extend, $type = '', $prepend = false)
+	{
+		if (self::$enabled && $class && $extend)
+		{
+			if (!is_array(self::$_extend))
+			{
+				self::$_extend = array();
+			}
+			if (!$type)
+			{
+				$type = 'load_class';
+			}
+			if ($prepend && isset(self::$_extend[$type][$class]))
+			{
+				array_unshift(self::$_extend[$type][$class], $extend);
+			}
+			else
+			{
+				self::$_extend[$type][$class][] = $extend;
+			}
+		}
+	}
+
+	/**
 	 * Core event listener - must be first in the queue in XenForo Admin CP
 	 *
 	 * !!!WARNING!!! XenForo not fully loaded at this time.
