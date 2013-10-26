@@ -43,18 +43,9 @@ public static function initListeners(WHM_Core_Listener $events) {
 <?php
 public static function initListeners(WHM_Core_Listener $events) {
 	$events->addExtenders(
-        'datawriter' => array(
-            'XenForo_DataWriter_Page' => array(
-                'Some_Addon_DataWriter_Page'
-            ),
-            'XenForo_DataWriter_Forum' => array(
-                'Some_Addon_DataWriter_Forum'
-            )
-        ),
-        'view' => array(
-            'XenForo_ViewPublic_Page_View' => array(
-                'Some_Addon_ViewPublic_Page_View'
-            )
+		array(
+            'XenForo_DataWriter_Page' => array(`Some_Addon_DataWriter_Node`, `Some_Addon_DataWriter_Page`),
+            'XenForo_ViewPublic_Page_View' => 'Some_Addon_ViewPublic_Page_View'
         )
 	);
 }
@@ -127,16 +118,10 @@ public static function initListeners(WHM_Core_Listener $events) {
 <?php
 public static function initListeners(WHM_Core_Listener $events) {
 	$events->addExtenders(
-        'datawriter' => array(
-            'XenForo_DataWriter_Node' => array(
-                'Some_Addon_DataWriter_Node'
-            ),
-            'XenForo_DataWriter_Page' => array(
-                'Some_Addon_DataWriter_Node'
-            ),
-            'XenForo_DataWriter_Forum' => array(
-                'Some_Addon_DataWriter_Node'
-            )
+		array(
+            'XenForo_DataWriter_Node'  => 'Some_Addon_DataWriter_Node',
+            'XenForo_DataWriter_Page'  => 'Some_Addon_DataWriter_Node',
+            'XenForo_DataWriter_Forum' => 'Some_Addon_DataWriter_Node'
         )
 	);
 }
