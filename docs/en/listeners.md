@@ -77,16 +77,9 @@ For convenient work with such a proxy extension there was added event `load_clas
 ### Features of realisation
 Copy is created at first initialisation of proxy class. There is a modification time check for the file. So this will not cause problems with performance on production or problems with often update on development.
 
-This dynamic extention is inside of autoloader, then checking for each loaded class the ability of its extention with `load_class_proxy_class` is bad for performance, therefore to do it there is a special method of the class `WHM_Core_Autoloader` - `public function addClass($class = '')`. After adding name of handled class in autoloader there will be called event `load_class_proxy_class` for that class.
+This dynamic extention is inside of autoloader, then checking for each loaded class the ability of its extention with `load_class_proxy_class` is bad for performance if it used without event hint, and disabled.
 
-Example of adding  `Some_Class` for handling by event `load_class_proxy_class`
-
-~~~php
-<?php
-WHM_Core_Autoloader::getProxy()->addClass('Some_Class')
-~~~
-
-Using method `addExtenders` for event `load_class_proxy_class` classes are added automatically in autoloader, i.e. calling:
+Using method `addExtenders` for event `load_class_proxy_class` classes hints are added automatically in event listener:
 
 ~~~php
 <?php
@@ -102,8 +95,6 @@ public static function initListeners(WHM_Core_Listener $events) {
 	);
 }
 ~~~
-it is unnecessarry to call `addClass('Some_XenForo_Class')`.
-I.e. extention using method `addExtenders` is recommended.
 
 **Atention!** Extending abstract classes you have to point array consisting of name of the class and second field 'abstract':
 

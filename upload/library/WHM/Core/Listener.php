@@ -12,7 +12,14 @@
 class WHM_Core_Listener extends XenForo_CodeEvent
 {
 	/**
-	 * Listeners cache array
+	 * Instance manager.
+	 *
+	 * @var WHM_Core_Listener
+	 */
+	private static $_instance;
+
+	/**
+	 * Listeners cache array - public mirror of original listeners
 	 * @var array
 	 */
 	public $listeners = array();
@@ -25,7 +32,13 @@ class WHM_Core_Listener extends XenForo_CodeEvent
 	public static $enabled = false;
 
 	/**
-	 * Dynamic extenders array
+	 * Dynamic extenders input array
+	 * @var array
+	 */
+	protected static $_extendInput = array();
+
+	/**
+	 * Normal extenders array
 	 * @var array
 	 */
 	protected static $_extend = array();
@@ -37,20 +50,29 @@ class WHM_Core_Listener extends XenForo_CodeEvent
 	protected static $_counters = array();
 
 	/**
-	 * List of handled load_class_* event types
-	 * @var array
+	 * Gets the WHM Core Listener instance.
+	 *
+	 * @return WHM_Core_Listener
 	 */
-	protected $_validTypes = array(
-		 'proxy_class', 'bb_code', 'controller', 'datawriter', 'importer',
-		 'mail', 'model', 'route_prefix', 'search_data', 'view'
-	);
+	public static final function getInstance()
+	{
+		if (!self::$_instance)
+		{
+			self::$_instance = new self();
+		}
 
+		return self::$_instance;
+	}
 	/**
 	 * Constructor. Sets original listeners cache from parent class
 	 */
 	public function __construct()
 	{
-		$this->listeners = $this->getXenForoListeners();
+		if (!is_array(XenForo_CodeEvent::$_listeners))
+		{
+			XenForo_CodeEvent::$_listeners = array();
+		}
+		$this->listeners =& XenForo_CodeEvent::$_listeners;
 	}
 
 	/**
@@ -59,7 +81,7 @@ class WHM_Core_Listener extends XenForo_CodeEvent
 	 */
 	public function getXenForoListeners()
 	{
-		return ($return = parent::$_listeners) ? $return : array();
+		return ($return = XenForo_CodeEvent::$_listeners) ? $return : array();
 	}
 
 	/**
@@ -69,28 +91,51 @@ class WHM_Core_Listener extends XenForo_CodeEvent
 	 *
 	 * @return array
 	 * */
-	public function getDynamicListeners()
+	public function prepareDynamicListeners()
 	{
-		if (self::$_extend)
+		if (self::$_extendInput)
 		{
 			$listeners = array();
-			foreach ($this->_validTypes as $type)
+			$keys = array(
+				'all', 'proxy_class', 'bb_code', 'controller', 'datawriter',
+				'importer', 'mail', 'model', 'route_prefix', 'search_data', 'view'
+			);
+
+			//not grouped extenders - merge with 'all'
+			$all = array_diff_key(self::$_extendInput, array_flip($keys));
+			self::$_extendInput['all'] = isset(self::$_extendInput['all']) ? array_merge_recursive(self::$_extendInput['all'], $all) : $all;
+
+			foreach ($keys as $type)
 			{
-				if (!empty(self::$_extend[$type]))
+				if (!empty(self::$_extendInput[$type]))
 				{
-					$listenerMethod = str_replace(' ', '', ucwords(str_replace('_', ' ', $type)));
-					$listeners['load_class_'.$type]['_'] = array(
-						array('WHM_Core_Listener', 'loadClass'. $listenerMethod)
-					);
 					if ($type == 'proxy_class')
 					{
-						foreach (self::$_extend[$type] as $className => $extend)
+						$event = 'load_class_proxy_class';
+						$method = 'loadProxyClass';
+						$newType = 'proxy';
+					}
+					else
+					{
+						$event  = 'load_class';
+						$method = 'loadClass';
+						$newType = 'all';
+					}
+
+					foreach (self::$_extendInput[$type] as $className => $extend)
+					{
+						if (!isset($listeners[$event][$className]) && !isset(self::$_extend[$newType][$className]))
 						{
-							WHM_Core_Autoloader::getProxy()->addClass($className);
+							$listeners[$event][$className] = array(
+								array('WHM_Core_Listener', $method)
+							);
 						}
 					}
+					self::$_extend[$newType] = isset(self::$_extend[$newType]) ? array_merge_recursive(self::$_extend[$newType], self::$_extendInput[$type]) : self::$_extendInput[$type];
 				}
 			}
+			self::$_extendInput = array();
+
 			return $listeners;
 		}
 		else
@@ -166,6 +211,7 @@ class WHM_Core_Listener extends XenForo_CodeEvent
 	/**
 	 * Add class lists for later class extender.
 	 * Usually called from init_listeners event
+	 * Deprecated !!!!
 	 *
 	 * Example how extend
 	 * XenForo_DataWriter_Page
@@ -197,82 +243,73 @@ class WHM_Core_Listener extends XenForo_CodeEvent
 	 */
 	public function addExtenders($extenders, $prepend = false)
 	{
-		self::addExtendersStatic($extenders, $prepend);
-	}
-
-	/**
-	 * Static version of addExtenders method
-	 * @see WHM_Core_Listener::addExtenders
-	 *
-	 * @param array $extenders Array of class list
-	 * @param bool  $prepend   Add to start of extenders's list if true
-	 *
-	 */
-	public static function addExtendersStatic($extenders, $prepend = false)
-	{
 		if (self::$enabled)
 		{
-			if (!self::$_extend)
+			if (self::$enabled)
 			{
-				self::$_extend = $extenders;
-			}
-			else
-			{
-				self::$_extend = ($prepend) ? array_merge_recursive($extenders, self::$_extend) : array_merge_recursive(self::$_extend, $extenders);
+				if (!self::$_extendInput)
+				{
+					self::$_extendInput = $extenders;
+				}
+				else
+				{
+					self::$_extendInput = ($prepend) ? array_merge_recursive($extenders, self::$_extendInput) : array_merge_recursive(self::$_extendInput, $extenders);
+				}
 			}
 		}
 	}
 
 	/**
-	 * Add single class to class list for later class extender.
-	 * Usually called from init_listeners event
-	 *
-	 * Example how extend
-	 * XenForo_DataWriter_Page with Some_Addon_DataWriter_Node
-	 *
-	 * $this->addExtender('XenForo_DataWriter_Page', 'Some_Addon_DataWriter_Node', 'datawriter');
+	 * Extender method for single normal class with event autocreate
+	 * Usage only after init_listeners event
 	 *
 	 * @param string $class   Class name to extend
 	 * @param string $extend  Extend class name
-	 * @param string $type    Class type
 	 * @param bool   $prepend Add to start of extenders's list if true
 	 *
 	 */
-	public function addExtender($class, $extend, $type = '', $prepend = false)
-	{
-		self::addExtenderStatic($class, $extend, $type, $prepend);
-	}
-
-	/**
-	 * Static version of addExtender method
-	 * @see WHM_Core_Listener::addExtender
-	 *
-	 * @param string $class   Class name to extend
-	 * @param string $extend  Extend class name
-	 * @param string $type    Class type
-	 * @param bool   $prepend Add to start of extenders's list if true
-	 *
-	 */
-	public static function addExtenderStatic($class, $extend, $type = '', $prepend = false)
+	public function extendClass($class, $extend, $prepend = false)
 	{
 		if (self::$enabled && $class && $extend)
 		{
-			if (!is_array(self::$_extend))
+			if (!isset(self::$_extend['all'][$class]))
 			{
-				self::$_extend = array();
+				$this->prependListener('load_class', array('WHM_Core_Listener', 'loadClass'), $class);
 			}
-			if (!$type)
+			else if ($prepend)
 			{
-				$type = 'load_class';
+				array_unshift(self::$_extend['all'][$class], $extend);
+
+				return;
 			}
-			if ($prepend && isset(self::$_extend[$type][$class]))
+
+			self::$_extend['all'][$class][] = $extend;
+		}
+	}
+
+	/**
+	 * Extender method for proxy classes
+	 *
+	 * @param string $class   Class name to extend
+	 * @param string $extend  Extend class name
+	 * @param bool   $prepend Add to start of extenders's list if true
+	 *
+	 */
+	public function extendProxyClass($class, $extend, $prepend = false)
+	{
+		if (self::$enabled && $class && $extend)
+		{
+			if (!isset(self::$_extend['proxy'][$class]))
 			{
-				array_unshift(self::$_extend[$type][$class], $extend);
+				$this->prependListener('load_class_proxy_class', array('WHM_Core_Listener', 'loadProxyClass'), $class);
 			}
-			else
+			else if ($prepend)
 			{
-				self::$_extend[$type][$class][] = $extend;
+				array_unshift(self::$_extend['proxy'][$class], $extend);
+
+				return;
 			}
+			self::$_extend['proxy'][$class][] = $extend;
 		}
 	}
 
@@ -290,62 +327,31 @@ class WHM_Core_Listener extends XenForo_CodeEvent
 		//Core listeners
 		$events->addExtenders(
 			array(
-			     'proxy_class' => array(
-				     'XenForo_DataWriter' => array(
+			     'proxy_class'                               => array(
+				     'XenForo_DataWriter'                   => array(
 					     array('WHM_Core_DataWriter_Abstract', 'abstract')
 				     ),
 				     'XenForo_ControllerAdmin_NodeAbstract' => array(
 					     array('WHM_Core_ControllerAdmin_NodeAbstract', 'abstract')
 				     )
 			     ),
-			     'datawriter' => array(
-				     'XenForo_DataWriter_Discussion_Thread' => array(
-					     'WHM_Core_DataWriter_Thread'
-				     ),
-				     'XenForo_DataWriter_DiscussionMessage_Post' => array(
-					     'WHM_Core_DataWriter_Post'
-				     ),
-				     'XenForo_DataWriter_Node' => array(
-					     'WHM_Core_DataWriter_Node'
-				     ),
-				     'XenForo_DataWriter_Forum' => array(
-					     'WHM_Core_DataWriter_Node'
-				     ),
-				     'XenForo_DataWriter_Page' => array(
-					     'WHM_Core_DataWriter_Node'
-				     ),
-				     'XenForo_DataWriter_Category' => array(
-					     'WHM_Core_DataWriter_Node'
-				     ),
-				     'XenForo_DataWriter_LinkForum' => array(
-					     'WHM_Core_DataWriter_Node'
-				     )
-			     ),
-			     'model' => array(
-				     'XenForo_Model_Thread' => array(
-					     'WHM_Core_Model_Thread'
-				     ),
-				     'XenForo_Model_Post' => array(
-					     'WHM_Core_Model_Post'
-				     ),
-				     'XenForo_Model_Node' => array(
-					     'WHM_Core_Model_Node'
-				     ),
-				     'XenForo_Model_Forum' => array(
-					     'WHM_Core_Model_Forum'
-				     )
-			     ),
-			     'controller' => array(
-				     'XenForo_ControllerPublic_Forum' => array(
-					     'WHM_Core_ControllerPublic_Forum'
-				     ),
-				     'XenForo_ControllerPublic_Thread' => array(
-					     'WHM_Core_ControllerPublic_Thread'
-				     ),
-				     'XenForo_ControllerPublic_Post' => array(
-					     'WHM_Core_ControllerPublic_Post'
-				     )
-			     )
+			     //datawriters
+			     'XenForo_DataWriter_Discussion_Thread'      => 'WHM_Core_DataWriter_Thread',
+			     'XenForo_DataWriter_DiscussionMessage_Post' => 'WHM_Core_DataWriter_Post',
+			     'XenForo_DataWriter_Node'                   => 'WHM_Core_DataWriter_Node',
+			     'XenForo_DataWriter_Forum'                  => 'WHM_Core_DataWriter_Node',
+			     'XenForo_DataWriter_Page'                   => 'WHM_Core_DataWriter_Node',
+			     'XenForo_DataWriter_Category'               => 'WHM_Core_DataWriter_Node',
+			     'XenForo_DataWriter_LinkForum'              => 'WHM_Core_DataWriter_Node',
+			     //models
+			     'XenForo_Model_Thread'                      => 'WHM_Core_Model_Thread',
+			     'XenForo_Model_Post'                        => 'WHM_Core_Model_Post',
+			     'XenForo_Model_Node'                        => 'WHM_Core_Model_Node',
+			     'XenForo_Model_Forum'                       => 'WHM_Core_Model_Forum',
+			     //controllers
+			     'XenForo_ControllerPublic_Forum'            => 'WHM_Core_ControllerPublic_Forum',
+			     'XenForo_ControllerPublic_Thread'           => 'WHM_Core_ControllerPublic_Thread',
+			     'XenForo_ControllerPublic_Post'             => 'WHM_Core_ControllerPublic_Post'
 			)
 		);
 	}
@@ -370,161 +376,25 @@ class WHM_Core_Listener extends XenForo_CodeEvent
 	}
 
 	/**
-	 * Event listener for load_class_bb_code event
-	 * Called when instantiating a BB code formatter.
-	 * This event can be used to extend the class that will be instantiated dynamically.
-	 *
-	 * @param string $class  The name of the class to be created
-	 * @param array  $extend A modifiable list of classes that wish to extend the class
-	 */
-	public static function loadClassBbCode($class, array &$extend)
-	{
-		self::_mergeExtend('bb_code', $class, $extend);
-	}
-
-	/**
-	 * Event listener for load_class_controller event
-	 * Called when instantiating a controller.
-	 * This event can be used to extend the class that will be instantiated dynamically.
-	 *
-	 * @param string $class  The name of the class to be created
-	 * @param array  $extend A modifiable list of classes that wish to extend the class
-	 */
-	public static function loadClassController($class, array &$extend)
-	{
-		self::_mergeExtend('controller', $class, $extend);
-	}
-
-	/**
-	 * Event listener for load_class_datawriter event
-	 * Called when instantiating a data writer.
-	 * This event can be used to extend the class that will be instantiated dynamically.
-	 *
-	 * @param string $class  The name of the class to be created
-	 * @param array  $extend A modifiable list of classes that wish to extend the class
-	 */
-	public static function loadClassDatawriter($class, array &$extend)
-	{
-		self::_mergeExtend('datawriter', $class, $extend);
-	}
-
-	/**
-	 * Event listener for load_class_importer event
-	 * Called when instantiating an importer.
-	 * This event can be used to extend the class that will be instantiated dynamically.
-	 *
-	 * @param string $class  The name of the class to be created
-	 * @param array  $extend A modifiable list of classes that wish to extend the class
-	 */
-	public static function loadClassImporter($class, array &$extend)
-	{
-		self::_mergeExtend('importer', $class, $extend);
-	}
-
-	/**
-	 * Event listener for load_class_mail event
-	 * Called when instantiating a mail object.
-	 * This event can be used to extend the class that will be instantiated dynamically.
-	 *
-	 * @param string $class  The name of the class to be created
-	 * @param array  $extend A modifiable list of classes that wish to extend the class
-	 */
-	public static function loadClassMail($class, array &$extend)
-	{
-		self::_mergeExtend('mail', $class, $extend);
-	}
-
-	/**
-	 * Event listener for load_class_model event
-	 * Called when instantiating a model.
-	 * This event can be used to extend the class that will be instantiated dynamically.
-	 *
-	 * @param string $class  The name of the class to be created
-	 * @param array  $extend A modifiable list of classes that wish to extend the class
-	 */
-	public static function loadClassModel($class, array &$extend)
-	{
-		self::_mergeExtend('model', $class, $extend);
-	}
-
-	/**
-	 * Event listener for load_class_route_prefix event
-	 * Called when instantiating a specific route prefix class.
-	 * This event can be used to extend the class that will be instantiated dynamically.
-	 *
-	 * @param string $class  The name of the class to be created
-	 * @param array  $extend A modifiable list of classes that wish to extend the class
-	 */
-	public static function loadClassRoutePrefix($class, array &$extend)
-	{
-		self::_mergeExtend('route_prefix', $class, $extend);
-	}
-
-	/**
-	 * Event listener for load_class_search_data event
-	 * Called when instantiating a search data handler.
-	 * This event can be used to extend the class that will be instantiated dynamically.
-	 *
-	 * @param string $class  The name of the class to be created
-	 * @param array  $extend A modifiable list of classes that wish to extend the class
-	 */
-	public static function loadClassSearchData($class, array &$extend)
-	{
-		self::_mergeExtend('search_data', $class, $extend);
-	}
-
-	/**
-	 * Event listener for load_class_view event
-	 * Called when instantiating a view.
-	 * This event can be used to extend the class that will be instantiated dynamically.
-	 *
-	 * @param string $class  The name of the class to be created
-	 * @param array  $extend A modifiable list of classes that wish to extend the class
-	 */
-	public static function loadClassView($class, array &$extend)
-	{
-		self::_mergeExtend('view', $class, $extend);
-	}
-
-	/**
-	 * Event listener for load_class_proxy_class event
-	 * Called when autoloading a class with proxy autoload.
-	 * This event can be used to extend the any base XenForo class
-	 * that will be instantiated dynamically.
-	 *
-	 * @param string $class  The name of the class to be created
-	 * @param array  $extend A modifiable list of classes that wish to extend the class
-	 */
-	public static function loadClassProxyClass($class, array &$extend)
-	{
-		self::_mergeExtend('proxy_class', $class, $extend);
-	}
-
-	/**
-	 * Base callback called by event listeners in load_class_* events
+	 * Base callback called by event listeners in load_class event
 	 * Extends class with list of classes preset in init_listeners event
 	 * Counts XFCP proxy class declarations
 	 * and handles multi extend classes (traits emulation)
 	 *
-	 * @param string $type   Type of load class event (load_class_* postfix)
 	 * @param string $class  The name of the class to be created
 	 * @param array  $extend A modifiable list of classes that wish to extend the class
 	 */
-	protected static function _mergeExtend($type, $class, array &$extend)
+	public static function loadClass($class, array &$extend)
 	{
-		if (self::$enabled && isset(self::$_extend[$type][$class]))
+		if (self::$enabled && isset(self::$_extend['all'][$class]))
 		{
-			if (!is_array(self::$_extend[$type][$class]))
+			if (!is_array(self::$_extend['all'][$class]))
 			{
-				self::$_extend[$type][$class] = array(self::$_extend[$type][$class]);
+				self::$_extend['all'][$class] = array(self::$_extend['all'][$class]);
 			}
-			foreach(self::$_extend[$type][$class] as $dynamic)
+			foreach(self::$_extend['all'][$class] as $dynamic)
 			{
-				if (is_array($dynamic))
-				{
-					$extend[] = $dynamic;
-				}
-				else if (empty(self::$_counters[$dynamic]))
+				if (empty(self::$_counters[$dynamic]))
 				{
 					$extend[] = $dynamic;
 					self::$_counters[$dynamic] = 1;
@@ -535,6 +405,27 @@ class WHM_Core_Listener extends XenForo_CodeEvent
 					self::$_counters[$dynamic]++;
 				}
 			}
+		}
+	}
+
+	/**
+	 * Base callback called by event listeners in load_class_proxy_class event
+	 * Extends class with list of classes preset in init_listeners event
+	 * Counts XFCP proxy class declarations
+	 * and handles multi extend classes (traits emulation)
+	 *
+	 * @param string $class  The name of the class to be created
+	 * @param array  $extend A modifiable list of classes that wish to extend the class
+	 */
+	public static function loadProxyClass($class, array &$extend)
+	{
+		if (self::$enabled && isset(self::$_extend['proxy'][$class]))
+		{
+			if (!is_array(self::$_extend['proxy'][$class]))
+			{
+				self::$_extend['proxy'][$class] = array(self::$_extend['proxy'][$class]);
+			}
+			$extend = array_merge($extend, self::$_extend['proxy'][$class]);
 		}
 	}
 }

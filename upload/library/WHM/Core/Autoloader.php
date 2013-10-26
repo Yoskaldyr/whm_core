@@ -12,12 +12,13 @@
 class WHM_Core_Autoloader extends XenForo_Autoloader
 {
 	protected $_eval = null;
+
 	/**
-	 * Array of class names for proxy loading.
+	 * WHM_Core_Listener cache.
 	 *
-	 * @var array
+	 * @var WHM_Core_Listener
 	 */
-	protected $_proxyClasses = array();
+	protected $_events = null;
 	/**
 	 * Path to directory containing the application's library.
 	 *
@@ -54,6 +55,13 @@ class WHM_Core_Autoloader extends XenForo_Autoloader
 	protected $_initListenersClass = 'XenForo_Options';
 
 	/**
+	 * On autoload this class init_listeners event will be fired.
+	 *
+	 * @var bool
+	 */
+	protected $_initListenersFired = false;
+
+	/**
 	 * Public setter for _initListenersClass
 	 *
 	 * @param string $class
@@ -63,6 +71,26 @@ class WHM_Core_Autoloader extends XenForo_Autoloader
 	{
 		$this->_initListenersClass = (string) $class;
 		return $this;
+	}
+
+	protected function _fireInitListeners()
+	{
+		if (!$this->_initListenersFired)
+		{
+			$events = WHM_Core_Listener::getInstance();
+			XenForo_CodeEvent::fire('init_listeners', array($events));
+			unset($events->listeners['init_listeners']);
+
+			$events->listeners = array_merge_recursive(
+				array('init_dependencies' => array(
+					array('WHM_Core_Listener', 'initDependencies')
+				)),
+				$events->prepareDynamicListeners(),
+				$events->listeners
+			);
+			$this->_events = $events;
+			$this->_initListenersFired = true;
+		}
 	}
 
 	/**
@@ -100,32 +128,6 @@ class WHM_Core_Autoloader extends XenForo_Autoloader
 		if ($map && is_array($map))
 		{
 			$this->_addonMap = $map + $this->_addonMap;
-		}
-		return $this;
-	}
-
-	/**
-	 * Add class name to proxy loaded classes
-	 *
-	 * @param string|array $class Class name for proxy loader
-	 * @return $this
-	 * */
-	public function addClass($class = '')
-	{
-		if (is_array($class))
-		{
-			foreach($class as $name)
-			{
-				$this->addClass($name);
-			}
-		}
-		else
-		{
-			$class = (string)$class;
-			if ($class && empty($this->_proxyClasses[$class]))
-			{
-				$this->_proxyClasses[$class] = true;
-			}
 		}
 		return $this;
 	}
@@ -171,8 +173,9 @@ class WHM_Core_Autoloader extends XenForo_Autoloader
 	{
 		if ($class == $this->_initListenersClass)
 		{
-			WHM_Core_Application::initListeners();
+			$this->_fireInitListeners();
 		}
+
 		if (class_exists($class, false) || interface_exists($class, false))
 		{
 			return true;
@@ -209,10 +212,11 @@ class WHM_Core_Autoloader extends XenForo_Autoloader
 				|| $this->_saveClass($proxyFile, $this->_getDynamicBody($baseClass, $counter, $baseFile))
 			)
 			{
+				/** @noinspection PhpIncludeInspection */
 				include($proxyFile);
 			}
 		}
-		else if (!empty($this->_proxyClasses[$class]))
+		else if (isset($this->_events->listeners['load_class_proxy_class'][$class]))
 		{
 			$baseFile = $this->autoloaderClassToFile($class);
 			$timestamp = @filemtime($baseFile);
@@ -222,7 +226,7 @@ class WHM_Core_Autoloader extends XenForo_Autoloader
 			}
 
 			$extend = array();
-			XenForo_CodeEvent::fire('load_class_proxy_class', array($class, &$extend));
+			XenForo_CodeEvent::fire('load_class_proxy_class', array($class, &$extend), $class);
 
 			if ($extend)
 			{
@@ -242,6 +246,7 @@ class WHM_Core_Autoloader extends XenForo_Autoloader
 					|| $this->_saveClass($proxyFile, $this->_getProxyBody($class, $baseFile))
 				)
 				{
+					/** @noinspection PhpIncludeInspection */
 					include($proxyFile);
 				}
 				//dynamic resolve only if proxy class loaded
@@ -288,6 +293,7 @@ class WHM_Core_Autoloader extends XenForo_Autoloader
 			}
 			else
 			{
+				/** @noinspection PhpIncludeInspection */
 				include($baseFile);
 			}
 			return (class_exists($class, false) || interface_exists($class, false));
@@ -433,30 +439,6 @@ class WHM_Core_Autoloader extends XenForo_Autoloader
 		{
 			$body = preg_replace('#([\s\n]class[\s\n]+)(' . $class . ')([\s\n]+extends[\s\n]+XFCP_)(' . $class . ')([\s\n\{])#u', '$1$2__' . $counter . '$3$4__' . $counter . '$5', $body, 1, $count);
 			return ($count) ? $body : false;
-		}
-		return false;
-	}
-
-	/**
-	 * Saves dynamic class in proxy directory for multi declarations of XFCP_ proxy classes
-	 *
-	 * @param string  $class     Original class name
-	 * @param integer $counter   Class declaration counter (used as postfix)
-	 * @param string  $baseFile  Path to original class file
-	 * @param string  $proxyFile Path to dynamic proxy class file
-	 *
-	 * @return boolean  Returns true on success
-	 */
-	protected function _saveDynamicClass($class, $counter, $baseFile = '', $proxyFile = '')
-	{
-		if ($this->_createProxyDirectory())
-		{
-			$body = $this->_getProxyBody($class, $baseFile, $proxyFile);
-			return (
-				!empty($body)
-					&& file_put_contents($proxyFile, $body)
-					&& XenForo_Helper_File::makeWritableByFtpUser($proxyFile)
-			);
 		}
 		return false;
 	}

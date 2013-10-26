@@ -76,29 +76,6 @@ class WHM_Core_Application
 	}
 
 	/**
-	 * Adds dynamic WHM_Core listeners and extenders to base XenForo Listeners
-	 * by firing init_listeners event
-	 * Called from WHM_Core_Autoloader
-	 * */
-	public static function initListeners()
-	{
-		$events = new WHM_Core_Listener();
-		XenForo_CodeEvent::fire('init_listeners', array( $events ));
-		//remove event (protects doubling init)
-		unset($events->listeners['init_listeners']);
-		//set merged dynamic load_class_* and normal listeners
-		XenForo_CodeEvent::setListeners(
-			array_merge_recursive(
-				array('init_dependencies' => array(
-					array('WHM_Core_Listener', 'initDependencies')
-				)),
-				$events->getDynamicListeners(),
-				$events->listeners
-			), false);
-		unset($events);
-	}
-
-	/**
 	 * Instance manager. Loaded on init_dependencies event
 	 *
 	 * @var WHM_Core_Application

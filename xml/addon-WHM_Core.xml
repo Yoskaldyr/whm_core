@@ -4,6 +4,7 @@
   <admin_permissions/>
   <admin_style_properties/>
   <admin_templates/>
+  <admin_template_modifications/>
   <code_events>
     <event event_id="init_application"><![CDATA[<p>Called when the WHM core application loads its default data.</p>
 
@@ -25,7 +26,7 @@
 </ol>
 
 <p>Warning! This event fired before XenForo_Options is loaded!</p>]]></event>
-    <event event_id="load_class_controller_helper"><![CDATA[<p>Called when instantiating a controller helper. This event can be used to extend the class that will be instantiated dynamically.</p>
+    <event event_id="load_class_proxy_class"><![CDATA[<p>Called when autoloading a class with proxy autoload. This event can be used to extend the any base XenForo class that will be instantiated dynamically.</p>
 
 <p>Callback signature:</p>
 <blockquote><code>$class, <em>array</em> &$extend</code></blockquote>
@@ -46,10 +47,11 @@
 <p>This class must extend the non-existent XFCP_x class. This will be resolved at run time.</p>]]></event>
   </code_events>
   <code_event_listeners>
-    <listener event_id="init_listeners" execute_order="1" callback_class="WHM_Core_Listener" callback_method="initListeners" active="1" description="Base Init Listeners (for enabling disabling addon)"/>
+    <listener event_id="init_listeners" execute_order="1" callback_class="WHM_Core_Listener" callback_method="initListeners" active="1" hint="" description="Base Init Listeners (for enabling disabling addon)"/>
   </code_event_listeners>
   <cron/>
   <email_templates/>
+  <email_template_modifications/>
   <optiongroups/>
   <permissions>
     <permission_groups/>
@@ -63,6 +65,6 @@
   <route_prefixes/>
   <style_properties/>
   <templates/>
+  <public_template_modifications/>
   <bb_code_media_sites/>
-  <template_modifications/>
 </addon>
