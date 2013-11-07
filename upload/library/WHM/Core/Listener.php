@@ -211,7 +211,6 @@ class WHM_Core_Listener extends XenForo_CodeEvent
 	/**
 	 * Add class lists for later class extender.
 	 * Usually called from init_listeners event
-	 * Deprecated !!!!
 	 *
 	 * Example how extend
 	 * XenForo_DataWriter_Page
@@ -220,21 +219,15 @@ class WHM_Core_Listener extends XenForo_CodeEvent
 	 *      with Some_Addon_ViewPublic_Page_View:
 	 *
 	 * $this->addExtenders(
-	 *      'datawriter' => array(
-	 *           'XenForo_DataWriter_Page' => array(
-	 *                'Some_Addon_DataWriter_Node',
-	 *                'Some_Addon_DataWriter_Page'
-	 *            ),
-	 *            'XenForo_DataWriter_Forum' => array(
-	 *                'Some_Addon_DataWriter_Node',
-	 *                'Some_Addon_DataWriter_Forum'
-	 *            )
+	 *      'XenForo_DataWriter_Page' => array(
+	 *            'Some_Addon_DataWriter_Node',
+	 *            'Some_Addon_DataWriter_Page'
 	 *      ),
-	 *      'view' => array(
-	 *            'XenForo_ViewPublic_Page_View' => array(
-	 *              'Some_Addon_ViewPublic_Page_View'
-	 *          )
-	 *      )
+	 *      'XenForo_DataWriter_Forum' => array(
+	 *            'Some_Addon_DataWriter_Node',
+	 *            'Some_Addon_DataWriter_Forum'
+	 *      ),
+	 *      'XenForo_ViewPublic_Page_View' => 'Some_Addon_ViewPublic_Page_View'
 	 * );
 	 *
 	 * @param array $extenders Array of class list
@@ -245,16 +238,36 @@ class WHM_Core_Listener extends XenForo_CodeEvent
 	{
 		if (self::$enabled)
 		{
-			if (self::$enabled)
+			if (!self::$_extendInput)
 			{
-				if (!self::$_extendInput)
-				{
-					self::$_extendInput = $extenders;
-				}
-				else
-				{
-					self::$_extendInput = ($prepend) ? array_merge_recursive($extenders, self::$_extendInput) : array_merge_recursive(self::$_extendInput, $extenders);
-				}
+				self::$_extendInput = $extenders;
+			}
+			else
+			{
+				self::$_extendInput = ($prepend) ? array_merge_recursive($extenders, self::$_extendInput) : array_merge_recursive(self::$_extendInput, $extenders);
+			}
+		}
+	}
+
+	/**
+	 * Add class lists for later proxy class extender.
+	 * Usually called from init_listeners event
+	 *
+	 * @param array $extenders Array of class list
+	 * @param bool  $prepend   Add to start of extenders's list if true
+	 *
+	 */
+	public function addProxyExtenders($extenders, $prepend = false)
+	{
+		if (self::$enabled)
+		{
+			if (!isset(self::$_extendInput['proxy_class']))
+			{
+				self::$_extendInput['proxy_class'] = $extenders;
+			}
+			else
+			{
+				self::$_extendInput['proxy_class'] = ($prepend) ? array_merge_recursive($extenders, self::$_extendInput['proxy_class']) : array_merge_recursive(self::$_extendInput['proxy_class'], $extenders);
 			}
 		}
 	}
@@ -327,14 +340,6 @@ class WHM_Core_Listener extends XenForo_CodeEvent
 		//Core listeners
 		$events->addExtenders(
 			array(
-			     'proxy_class'                               => array(
-				     'XenForo_DataWriter'                   => array(
-					     array('WHM_Core_DataWriter_Abstract', 'abstract')
-				     ),
-				     'XenForo_ControllerAdmin_NodeAbstract' => array(
-					     array('WHM_Core_ControllerAdmin_NodeAbstract', 'abstract')
-				     )
-			     ),
 			     //datawriters
 			     'XenForo_DataWriter_Discussion_Thread'      => 'WHM_Core_DataWriter_Thread',
 			     'XenForo_DataWriter_DiscussionMessage_Post' => 'WHM_Core_DataWriter_Post',
@@ -352,6 +357,12 @@ class WHM_Core_Listener extends XenForo_CodeEvent
 			     'XenForo_ControllerPublic_Forum'            => 'WHM_Core_ControllerPublic_Forum',
 			     'XenForo_ControllerPublic_Thread'           => 'WHM_Core_ControllerPublic_Thread',
 			     'XenForo_ControllerPublic_Post'             => 'WHM_Core_ControllerPublic_Post'
+			)
+		);
+		$events->addProxyExtenders(
+			array(
+			     'XenForo_DataWriter'                   => array(array('WHM_Core_DataWriter_Abstract', 'abstract')),
+			     'XenForo_ControllerAdmin_NodeAbstract' => array(array('WHM_Core_ControllerAdmin_NodeAbstract', 'abstract'))
 			)
 		);
 	}
