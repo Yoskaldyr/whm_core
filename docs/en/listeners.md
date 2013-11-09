@@ -70,18 +70,14 @@ Copy is created at first initialisation of proxy class. There is a modification 
 
 This dynamic extention is inside of autoloader, then checking for each loaded class the ability of its extention with `load_class_proxy_class` is bad for performance if it used without event hint, and disabled.
 
-Using method `addExtenders` for event `load_class_proxy_class` classes hints are added automatically in event listener:
+Using method `addProxyExtenders` for event `load_class_proxy_class` classes hints are added automatically in event listener:
 
 ~~~php
 <?php
 public static function initListeners(WHM_Core_Listener $events) {
-	$events->addExtenders(
+	$events->addProxyExtenders(
 		array(
-	        'proxy_class' => array(
-		        'Some_XenForo_Class' => array(
-			        'Some_AddOn_Class'
-		        )
-	        )
+	        'Some_XenForo_Class' => 'Some_AddOn_Class'
 		)
 	);
 }
@@ -92,12 +88,10 @@ public static function initListeners(WHM_Core_Listener $events) {
 ~~~php
 <?php
 public static function initListeners(WHM_Core_Listener $events) {
-	$events->addExtenders(
+	$events->addProxyExtenders(
 		array(
-	        'proxy_class' => array(
-				'XenForo_DataWriter' => array(
-					array('AddOn_DataWriter_Abstract', 'abstract')
-				)
+			'XenForo_DataWriter' => array(
+				array('AddOn_DataWriter_Abstract', 'abstract')
 			)
 		)
 	);

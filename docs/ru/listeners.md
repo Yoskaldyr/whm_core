@@ -70,18 +70,14 @@ public static function initListeners(WHM_Core_Listener $events) {
 
 Т.к. это динамическое наследование происходит внутри автозагрузчика классов, то проверять для каждого загружаемого класса возможность расширения его с помощью события `load_class_proxy_class` бех хинтинга неэффективно в плане производительности, поэтому только если обработчик будет создан с хинтигом запустится событие `load_class_proxy_class`.
 
-При использовании метода `addExtenders` для события `load_class_proxy_class` обработчики автоматически автоматически создаются с хинтингом:
+При использовании метода `addProxyExtenders` для события `load_class_proxy_class` обработчики автоматически автоматически создаются с хинтингом:
 
 ~~~php
 <?php
 public static function initListeners(WHM_Core_Listener $events) {
-	$events->addExtenders(
+	$events->addProxyExtenders(
 		array(
-	        'proxy_class' => array(
-		        'Some_XenForo_Class' => array(
-			        'Some_AddOn_Class'
-		        )
-	        )
+	        'Some_XenForo_Class' => 'Some_AddOn_Class'
 		)
 	);
 }
@@ -92,12 +88,10 @@ public static function initListeners(WHM_Core_Listener $events) {
 ~~~php
 <?php
 public static function initListeners(WHM_Core_Listener $events) {
-	$events->addExtenders(
+	$events->addProxyExtenders(
 		array(
-	        'proxy_class' => array(
-				'XenForo_DataWriter' => array(
-					array('AddOn_DataWriter_Abstract', 'abstract')
-				)
+			'XenForo_DataWriter' => array(
+				array('AddOn_DataWriter_Abstract', 'abstract')
 			)
 		)
 	);
