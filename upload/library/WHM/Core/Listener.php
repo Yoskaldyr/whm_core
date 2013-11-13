@@ -288,15 +288,21 @@ class WHM_Core_Listener extends XenForo_CodeEvent
 			if (!isset(self::$_extend['all'][$class]))
 			{
 				$this->prependListener('load_class', array('WHM_Core_Listener', 'loadClass'), $class);
+				self::$_extend['all'][$class] = array();
 			}
-			else if ($prepend)
+			if (!is_array(self::$_extend['all'][$class]))
+			{
+				self::$_extend['all'][$class] = array(self::$_extend['all'][$class]);
+			}
+
+			if ($prepend)
 			{
 				array_unshift(self::$_extend['all'][$class], $extend);
-
-				return;
 			}
-
-			self::$_extend['all'][$class][] = $extend;
+			else
+			{
+				self::$_extend['all'][$class][] = $extend;
+			}
 		}
 	}
 
@@ -315,14 +321,22 @@ class WHM_Core_Listener extends XenForo_CodeEvent
 			if (!isset(self::$_extend['proxy'][$class]))
 			{
 				$this->prependListener('load_class_proxy_class', array('WHM_Core_Listener', 'loadProxyClass'), $class);
+				self::$_extend['proxy'][$class] = array();
 			}
-			else if ($prepend)
+
+			if (!is_array(self::$_extend['proxy'][$class]))
+			{
+				self::$_extend['proxy'][$class] = array(self::$_extend['proxy'][$class]);
+			}
+
+			if ($prepend)
 			{
 				array_unshift(self::$_extend['proxy'][$class], $extend);
-
-				return;
 			}
-			self::$_extend['proxy'][$class][] = $extend;
+			else
+			{
+				self::$_extend['proxy'][$class][] = $extend;
+			}
 		}
 	}
 
